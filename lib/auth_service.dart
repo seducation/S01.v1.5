@@ -24,7 +24,7 @@ class AuthService extends ChangeNotifier {
       await databases.createDocument(
         databaseId: databaseId,
         collectionId: collectionId,
-        documentId: 'unique()',
+        documentId: ID.unique(),
         data: {
           'content': content,
           'userId': user.$id,
@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
   Future<void> signUp(String email, String password, String name) async {
     try {
       final newUser = await account.create(
-        userId: 'unique()',
+        userId: ID.unique(),
         email: email,
         password: password,
         name: name,
