@@ -20,14 +20,21 @@ class AuthService extends ChangeNotifier {
     try {
       final user = await account.get();
       const databaseId = '691963ed003c37eb797f';
-      const collectionId = 'posts';
+      const collectionId = 'post';
       await databases.createDocument(
         databaseId: databaseId,
         collectionId: collectionId,
         documentId: ID.unique(),
         data: {
-          'content': content,
-          'userId': user.$id,
+          'caption': content,
+          'creator': user.$id,
+          'imageurl': '',
+          'imageid': '',
+          'tags': [],
+          'location': '',
+          'titles': '',
+          'likes': [],
+          'saves': [],
         },
       );
     } catch (e) {
@@ -51,7 +58,12 @@ class AuthService extends ChangeNotifier {
         documentId: newUser.$id,
         data: {
           'name': name,
-          'email': email,
+          'username': name, // Using name as username
+          'accountid': newUser.$id,
+          'emailid': email,
+          'bio': '',
+          'imageid': '',
+          'imageurl': ''
         },
       );
       await signIn(email, password);
