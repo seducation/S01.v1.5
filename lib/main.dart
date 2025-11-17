@@ -25,9 +25,14 @@ void main() {
 final _router = GoRouter(
   routes: [
     GoRoute(
-      path: '/',
-      builder: (context, state) => const MainScreen(),
-    ),
+        path: '/',
+        builder: (context, state) => const MainScreen(),
+        routes: [
+          GoRoute(
+            path: 'add_post',
+            builder: (context, state) => const AddPostScreen(),
+          ),
+        ]),
     GoRoute(
       path: '/signin',
       builder: (context, state) => const SignInScreen(),
@@ -39,10 +44,6 @@ final _router = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
-    ),
-    GoRoute(
-      path: '/add_post',
-      builder: (context, state) => const AddPostScreen(),
     ),
   ],
 );
