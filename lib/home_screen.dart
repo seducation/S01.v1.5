@@ -170,6 +170,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: tabBarWidget,
             ),
             titleSpacing: 0,
+            actions: [
+              IconButton(icon: const Icon(Icons.search), onPressed: () => context.go('/search')),
+              IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    context.go('/add_post');
+                  }),
+            ],
           );
         } else {
             final String currentTitle = (_mainTabController.index < 2)

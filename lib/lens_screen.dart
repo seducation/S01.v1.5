@@ -1,59 +1,151 @@
-import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:image_picker/image_picker.dart';
 
 class LensScreen extends StatefulWidget {
   const LensScreen({super.key});
 
   @override
-  LensScreenState createState() => LensScreenState();
+  State<LensScreen> createState() => _LensScreenState();
 }
 
-class LensScreenState extends State<LensScreen> {
+class _LensScreenState extends State<LensScreen> {
+  // Replace with your Appwrite project ID and endpoint
+  final String appwriteEndpoint = 'https://sgp.cloud.appwrite.io/v1';
+  final String appwriteProjectId = '691948bf001eb3eccd77';
+  final String appwriteDatabaseId = '691963ed003c37eb797f';
+  final String appwriteCollectionId = 'image';
+  final String appwriteBucketId = 'lens-s';
+
   late Client client;
   late Databases databases;
+  late Storage storage;
   final List<Document> _items = [];
   bool _isLoading = false;
-  String? _lastId;
+  String? _error;
+  bool _hasMore = true;
+  String? _lastDocumentId;
+
+  final _scrollController = ScrollController();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    client = Client()
-        .setEndpoint('https://cloud.appwrite.io/v1')
-        .setProject('YOUR_PROJECT_ID');
+    client = Client();
+    client
+        .setEndpoint(appwriteEndpoint)
+        .setProject(appwriteProjectId)
+        .setSelfSigned(
+            status: true); // For self-signed certificates, remove for production
+
     databases = Databases(client);
+    storage = Storage(client);
     _fetchData();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _fetchData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
-    if (_isLoading) return;
+    if (_isLoading || !_hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      List<String> queries = [Query.limit(10)];
+      if (_lastDocumentId != null) {
+        queries.add(Query.cursorAfter(_lastDocumentId!));
+      }
+      // ignore: deprecated_member_use
+      final response = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteCollectionId,
+        queries: queries,
+      );
+
+      if (response.documents.isNotEmpty) {
+        setState(() {
+          _items.addAll(response.documents);
+          _lastDocumentId = response.documents.last.$id;
+          if (response.documents.length < 10) {
+            _hasMore = false;
+          }
+        });
+      } else {
+        setState(() {
+          _hasMore = false;
+        });
+      }
+    } on AppwriteException catch (e) {
+      setState(() {
+        _error = e.message;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final response = await databases.listDocuments(
-        databaseId: 'YOUR_DATABASE_ID',
-        collectionId: 'YOUR_COLLECTION_ID',
-        queries: [
-          Query.limit(10),
-          if (_lastId != null) Query.cursorAfter(_lastId!)
-        ],
+      final file = await storage.createFile(
+        bucketId: appwriteBucketId,
+        fileId: ID.unique(),
+        file: InputFile.fromPath(path: image.path),
       );
 
+      final imageUrl =
+          '$appwriteEndpoint/storage/buckets/$appwriteBucketId/files/${file.$id}/view?project=$appwriteProjectId';
+
+      // ignore: deprecated_member_use
+      await databases.createDocument(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteCollectionId,
+        documentId: ID.unique(),
+        data: {
+          'title': 'New Image',
+          'description': 'A beautiful new image',
+          'imageUrl': imageUrl,
+        },
+      );
+
+      // Refresh data after upload
+      _items.clear();
+      _lastDocumentId = null;
+      _hasMore = true;
+      _fetchData();
+    } on AppwriteException catch (e) {
       setState(() {
-        _items.addAll(response.documents);
-        if (response.documents.isNotEmpty) {
-          _lastId = response.documents.last.$id;
-        }
-        _isLoading = false;
+        _error = e.message;
       });
-    } catch (e) {
-      log('Error fetching data: $e');
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -63,91 +155,99 @@ class LensScreenState extends State<LensScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-            // Handle menu button press
-          },
-        ),
-        title: const Text('Lens'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              _items.clear();
-              _lastId = null;
-              _fetchData();
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(20.0),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            title: const Text('Lens'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt_outlined),
+                onPressed: _uploadImage,
               ),
-              child: const Center(
-                child: Text(
-                  'Camera',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  // Handle menu icon press
+                },
+              ),
+            ],
+            pinned: true,
+            floating: true,
+          ),
+          if (_error != null)
+            SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Error: $_error'),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification scrollInfo) {
-          if (!_isLoading &&
-              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-            _fetchData();
-          }
-          return true;
-        },
-        child: StaggeredGrid.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-          children: List.generate(
-            _items.length,
-            (index) {
-              final isBigTile = index % 5 == 0;
-              final item = _items[index].data;
-              return StaggeredGridTile.count(
-                crossAxisCellCount: isBigTile ? 2 : 1,
-                mainAxisCellCount: isBigTile ? 1.5 : 1,
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: Image.network(
-                          item['imageUrl'],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          item['title'],
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                    ],
+          SliverPadding(
+            padding: const EdgeInsets.all(4.0),
+            sliver: SliverMasonryGrid.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+              childCount: _items.length,
+              itemBuilder: (context, index) {
+                final item = _items[index];
+                final isBigTile = (index % 3) == 0;
+                return StaggeredGridTile.count(
+                  crossAxisCellCount: isBigTile ? 2 : 1,
+                  mainAxisCellCount: isBigTile ? 2 : 1,
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (item.data['imageUrl'] != null)
+                          Expanded(
+                            child: Image.network(
+                              item.data['imageUrl'],
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        if (item.data['title'] != null)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              item.data['title'],
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        if (item.data['description'] != null && !isBigTile)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              item.data['description'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
+          if (_isLoading)
+            const SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

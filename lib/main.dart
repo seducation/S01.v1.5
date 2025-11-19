@@ -9,9 +9,10 @@ import 'search_screen.dart';
 import 'chats_screen.dart';
 import 'community_screen.dart';
 import 'lens_screen.dart';
-import 'signin.dart';
-import 'signup.dart';
+import 'sign_in.dart';
+import 'sign_up.dart';
 import 'profile_screen.dart';
+import 'theme_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +20,11 @@ Future<void> main() async {
   await authService.init();
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: authService,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: authService),
+        ChangeNotifierProvider(create: (_) => ThemeModel()),
+      ],
       child: MyApp(authService: authService),
     ),
   );
@@ -34,8 +38,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final router = _createRouter(authService);
 
-    return MaterialApp.router(
-      routerConfig: router,
+    return Consumer<ThemeModel>(
+      builder: (context, theme, child) {
+        return MaterialApp.router(
+          routerConfig: router,
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: theme.themeMode,
+        );
+      },
     );
   }
 }
@@ -45,16 +56,19 @@ GoRouter _createRouter(AuthService authService) {
     refreshListenable: authService,
     redirect: (BuildContext context, GoRouterState state) {
       final loggedIn = authService.isLoggedIn;
-      final loggingIn = state.matchedLocation == '/signin' || state.matchedLocation == '/signup';
+      final isLoggingIn = state.matchedLocation == '/signin' || state.matchedLocation == '/signup';
 
-      if (!loggedIn) {
-        return loggingIn ? null : '/signin';
-      }
-
-      if (loggingIn) {
+      // If the user is logged in and trying to access a login screen, redirect to home.
+      if (loggedIn && isLoggingIn) {
         return '/';
       }
 
+      // If the user is not logged in and not on a login screen, redirect to signin.
+      if (!loggedIn && !isLoggingIn) {
+        return '/signin';
+      }
+
+      // No redirect needed.
       return null;
     },
     routes: [
@@ -79,6 +93,10 @@ GoRouter _createRouter(AuthService authService) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/search',
+        builder: (context, state) => const SearchScreen(),
       ),
     ],
   );

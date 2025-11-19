@@ -3,15 +3,14 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'auth_service.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _nameController = TextEditingController();
+class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -20,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: const Text('Sign In'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -29,12 +28,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) => value!.isEmpty ? 'Please enter your name' : null,
-              ),
-              const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
@@ -52,12 +45,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     try {
-                      await Provider.of<AuthService>(context, listen: false).signUp(
-                        _emailController.text,
-                        _passwordController.text,
-                        _nameController.text,
-                      );
-                      if(context.mounted) context.go('/');
+                      await Provider.of<AuthService>(context, listen: false)
+                          .login(_emailController.text, _passwordController.text);
                     } catch (e) {
                       if(context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -67,12 +56,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     }
                   }
                 },
-                child: const Text('Sign Up'),
+                child: const Text('Sign In'),
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.go('/signin'),
-                child: const Text('Already have an account? Sign in'),
+                onPressed: () => context.go('/signup'),
+                child: const Text("Don't have an account? Sign up"),
               ),
             ],
           ),

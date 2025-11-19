@@ -1,17 +1,20 @@
+
 // ignore_for_file: unused_local_variable, unused_import
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:myapp/provider/theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
-Route _createRoute(
+Route createRoute(
     String urlImage, String title, var time, onOff, String msgs, context) {
   return PageRouteBuilder(
-    transitionDuration: Duration(milliseconds: 100),
-    reverseTransitionDuration: Duration(milliseconds: 100),
+    transitionDuration: const Duration(milliseconds: 100),
+    reverseTransitionDuration: const Duration(milliseconds: 100),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        message(urlImage, title, onOff, context),
+        ChatMessagingScreen(urlImage: urlImage, title: title, onOff: onOff),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
@@ -27,343 +30,264 @@ Route _createRoute(
   );
 }
 
-Widget contact(String urlImage, String title, var time, onOff, String msgs,
-    context, bool isOnline, String unRead, bool isPinned) {
-  return Column(
-    children: [
-      ListTile(
-        onTap: () {
-          Navigator.of(context).push(
-            _createRoute(urlImage, title, time, onOff, msgs, context),
-          );
-        },
-        leading: Stack(
+class ChatMessagingScreen extends StatelessWidget {
+  final String urlImage;
+  final String title;
+  final String onOff;
+
+  const ChatMessagingScreen(
+      {super.key,
+      required this.urlImage,
+      required this.title,
+      required this.onOff});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: 0.0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        title: Row(
           children: [
             SizedBox(
-              height: 50,
-              width: 50,
+              height: 40,
+              width: 40,
               child: ClipOval(
-                child: Image.network(
-                  urlImage,
+                child: CachedNetworkImage(
+                  imageUrl: urlImage,
                   fit: BoxFit.fill,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      color: Colors.white,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
             ),
-            isOnline
-                ? Positioned(
-                    top: 35,
-                    left: 38,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      width: 12,
-                      height: 12,
-                    ),
-                  )
-                : Text(""),
-          ],
-        ),
-        title: Text(title),
-        subtitle: Row(
-          children: [
             const SizedBox(
-              width: 4.0,
+              width: 10,
             ),
-            Text(
-              msgs,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title),
+                const SizedBox(
+                  height: 2,
+                ),
+                Text(
+                  onOff,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
             ),
           ],
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              time,
-              style: TextStyle(color: Colors.grey),
-            ),
-            unRead.isNotEmpty && isPinned
-                ? Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    width: 25,
-                    height: 25,
-                    child: Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.syringe,
-                        size: 13,
+        actions: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Icon(Icons.call),
+          ),
+          PopupMenuButton(
+            padding: EdgeInsets.zero,
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 0,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.volume_up_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Senyap",
+                      style: TextStyle(
+                        fontSize: 17,
                       ),
                     ),
-                  )
-                : unRead.isNotEmpty
-                    ? Container(
-                        decoration: BoxDecoration(
-                          color: isOnline ? Colors.green : Colors.grey,
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        width: 25,
-                        height: 25,
-                        child: Center(
-                          child: Text(
-                            unRead,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Text(""),
-          ],
-        ),
-      ),
-      Divider(
-        color: Colors.black.withAlpha(26),
-      ),
-    ],
-  );
-}
-
-Widget message(String urlImage, String title, String onOff, context) {
-  // clickContact
-  return Scaffold(
-    appBar: AppBar(
-      titleSpacing: 0.0,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back_rounded),
-      ),
-      title: Row(
-        children: [
-          SizedBox(
-            height: 40,
-            width: 40,
-            child: ClipOval(
-              child: Image.network(
-                urlImage,
-                fit: BoxFit.fill,
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 20,
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title),
-              const SizedBox(
-                height: 2,
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                child: Divider(
+                  thickness: 7,
+                  color: const Color.fromARGB(255, 186, 183, 183).withAlpha(26),
+                ),
               ),
-              Text(
-                onOff,
-                style: const TextStyle(fontSize: 12),
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 1,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.videocam_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Panggilan Video",
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 1,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.search_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Cari",
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 1,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.brush_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Bersihkan Riwayat",
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 1,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.colorize_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Ganti Warna",
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                height: 0,
+                padding: EdgeInsets.zero,
+                value: 1,
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  leading: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete_outline_outlined,
+                        color: Colors.grey,
+                        //size: 30,
+                      ),
+                    ],
+                  ),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Text(
+                      "Hapus Obrolan",
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ],
       ),
-      actions: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Icon(Icons.call),
-        ),
-        PopupMenuButton(
-          padding: EdgeInsets.zero,
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 0,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.volume_up_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Senyap",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward_ios_outlined,
-                  size: 20,
-                ),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              child: Divider(
-                thickness: 7,
-                color: Color.fromARGB(255, 186, 183, 183).withAlpha(26),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 1,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.videocam_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Panggilan Video",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 1,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Cari",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 1,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.brush_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Bersihkan Riwayat",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 1,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.colorize_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Ganti Warna",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            PopupMenuItem(
-              height: 0,
-              padding: EdgeInsets.zero,
-              value: 1,
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.delete_outline_outlined,
-                      color: Colors.grey,
-                      //size: 30,
-                    ),
-                  ],
-                ),
-                title: Transform.translate(
-                  offset: Offset(-16, 0),
-                  child: Text(
-                    "Hapus Obrolan",
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-    body: const ChatScr(),
-  );
+      body: const ChatScr(),
+    );
+  }
 }
+
 
 class ChatMess extends StatelessWidget {
   final String text;
@@ -386,9 +310,9 @@ class ChatMess extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
               color: themeNotifier.isDark
-                  ? Color.fromARGB(255, 35, 107, 167)
-                  : Color.fromARGB(255, 205, 243, 176),
-              borderRadius: BorderRadius.only(
+                  ? const Color.fromARGB(255, 35, 107, 167)
+                  : const Color.fromARGB(255, 205, 243, 176),
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),
                 bottomLeft: Radius.circular(10.0),
                 topRight: Radius.circular(10.0),
@@ -399,14 +323,14 @@ class ChatMess extends StatelessWidget {
               children: [
                 Text(
                   text,
-                  style: TextStyle(fontSize: 17),
+                  style: const TextStyle(fontSize: 17),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 7,
                 ),
                 Column(
                   children: [
-                    Text(""),
+                    const Text(""),
                     Row(
                       children: [
                         Text(
@@ -414,18 +338,18 @@ class ChatMess extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             color: themeNotifier.isDark
-                                ? Color.fromARGB(255, 185, 185, 185)
+                                ? const Color.fromARGB(255, 185, 185, 185)
                                 : Colors.grey,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 7,
                         ),
                         Icon(
                           Icons.done,
                           size: 15,
                           color: themeNotifier.isDark
-                              ? Color.fromARGB(255, 80, 171, 246)
+                              ? const Color.fromARGB(255, 80, 171, 246)
                               : Colors.grey,
                         ),
                       ],
@@ -498,8 +422,8 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                   onSubmitted: _handleSubmitted,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.zero,
-                    border: OutlineInputBorder(
-                      borderSide: const BorderSide(
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide(
                         width: 0,
                         style: BorderStyle.none,
                       ),
@@ -520,15 +444,15 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.attach_file_outlined,
                                 color: Colors.grey,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 16,
                               ),
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.mic_none_outlined,
                                 ),
                                 onPressed: () => // MODIFIED
@@ -539,7 +463,7 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                             ],
                           )
                         : IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.send,
                               color: Colors.blue,
                             ),
@@ -571,12 +495,12 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
     return Consumer<ThemeModel>(
         builder: (context, ThemeModel themeNotifier, child) {
       return Container(
-        constraints: BoxConstraints.expand(),
+        constraints: const BoxConstraints.expand(),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(themeNotifier.isDark
-                ? "assets/chat_bg_dark.jpg"
-                : "assets/chat_bg.jpg"),
+            image: NetworkImage(themeNotifier.isDark
+                ? "https://picsum.photos/seed/dark/600/800"
+                : "https://picsum.photos/seed/light/600/800"),
             fit: BoxFit.cover,
           ),
         ),
@@ -600,7 +524,7 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                           SizedBox(
                             height: width * 0.05,
                           ),
-                          Text(
+                          const Text(
                             "Belum ada pesan di sini...",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -610,7 +534,7 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                           SizedBox(
                             height: width * 0.07,
                           ),
-                          Text(
+                          const Text(
                             "Kirim pesan dan tekan sambutan di bawah.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -622,13 +546,25 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                           ),
                           SizedBox(
                             height: width * 0.2,
-                            child: Image.asset("assets/hi.gif"),
+                            child: CachedNetworkImage(
+                              imageUrl: "https://picsum.photos/seed/hi/200/200",
+                              placeholder: (context, url) =>
+                                  Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   )
-                : Text(""),
+                : const Text(""),
             // NEW
             Flexible(
               // NEW
@@ -654,7 +590,7 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
                                 });
                               },
                               value: '1',
-                              child: Text('Delete'),
+                              child: const Text('Delete'),
                             ),
                           ],
                           elevation: 8.0,

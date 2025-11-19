@@ -1,4 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/chat_messaging_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ChatModel {
   final String name;
@@ -35,7 +38,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
         name: "John Doe",
         message: "Hello there!",
         time: "12:30 PM",
-        imgPath: "assets/images/p1.jpg",
+        imgPath: "https://picsum.photos/seed/p1/200/200",
         status: true,
         messNum: 2,
       ),
@@ -43,13 +46,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
         name: "Jane Doe",
         message: "How are you?",
         time: "12:35 PM",
-        imgPath: "assets/images/p2.jpg",
+        imgPath: "https://picsum.photos/seed/p2/200/200",
       ),
       ChatModel(
         name: "Peter Jones",
         message: "See you soon.",
         time: "12:40 PM",
-        imgPath: "assets/images/p3.jpg",
+        imgPath: "https://picsum.photos/seed/p3/200/200",
         status: true,
         messNum: 1,
       ),
@@ -61,7 +64,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text('Telegram'),
+        title: const Text('myapps'),
         actions: <Widget>[
           const Padding(
             padding: EdgeInsets.all(8.0),
@@ -76,10 +79,38 @@ class _ChatsScreenState extends State<ChatsScreen> {
         child: ListView.separated(
             itemBuilder: (ctx, i) {
               return ListTile(
-
+                onTap: () {
+                  Navigator.of(context).push(
+                    createRoute(
+                      items[i].imgPath,
+                      items[i].name,
+                      items[i].time,
+                      items[i].status ? "Online" : "Offline",
+                      items[i].message,
+                      context,
+                    ),
+                  );
+                },
                 leading: CircleAvatar(
                   radius: 28,
-                  backgroundImage: AssetImage(items[i].imgPath),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: items[i].imgPath,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          color: Colors.white,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      fit: BoxFit.cover,
+                      width: 56,
+                      height: 56,
+                    ),
+                  ),
                 ),
 
                   title:items[i].status ?
