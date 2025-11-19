@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
+  final String id;
   final String name;
   final String email;
 
-  User({required this.name, required this.email});
+  User({required this.id, required this.name, required this.email});
 }
 
 class AuthService with ChangeNotifier {
@@ -20,7 +21,8 @@ class AuthService with ChangeNotifier {
     _isLoggedIn = prefs.getBool('loggedIn') ?? false;
     if (_isLoggedIn) {
       final email = prefs.getString('email') ?? '';
-      _currentUser = User(name: 'Test User', email: email);
+      // In a real app, you'd fetch the user details from your backend
+      _currentUser = User(id: 'user-123', name: 'Test User', email: email);
     }
     notifyListeners();
   }
@@ -32,7 +34,7 @@ class AuthService with ChangeNotifier {
     await prefs.setBool('loggedIn', true);
     await prefs.setString('email', email);
     _isLoggedIn = true;
-    _currentUser = User(name: 'Test User', email: email);
+    _currentUser = User(id: 'user-123', name: 'Test User', email: email);
     notifyListeners();
   }
 
@@ -54,7 +56,7 @@ class AuthService with ChangeNotifier {
     await prefs.setBool('loggedIn', true);
     await prefs.setString('email', email);
     _isLoggedIn = true;
-     _currentUser = User(name: 'New User', email: email);
+     _currentUser = User(id: 'user-456', name: 'New User', email: email);
     notifyListeners();
   }
 

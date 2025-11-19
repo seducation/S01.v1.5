@@ -1,5 +1,7 @@
 
+import 'dart:io' as io;
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'poster_item.dart';
 
 class AppwriteService {
@@ -37,5 +39,14 @@ class AppwriteService {
         'imageUrl': imageUrl,
       });
     }).toList();
+  }
+
+  Future<File> uploadFile(io.File file) async {
+    final result = await _storage.createFile(
+      bucketId: "lens-s",
+      fileId: ID.unique(),
+      file: InputFile.fromPath(path: file.path),
+    );
+    return result;
   }
 }

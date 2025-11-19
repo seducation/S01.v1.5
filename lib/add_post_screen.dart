@@ -1,6 +1,13 @@
+
+import 'dart:io' as io;
+
+import 'package:appwrite/appwrite.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import 'appwrite_service.dart';
 import 'auth_service.dart';
 
 // Mimics the functionality of the provided React PostEditor component.
@@ -17,10 +24,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
   final _codeController = TextEditingController();
+  final _appwriteService = AppwriteService();
 
-  // For simplicity, we'll manage a list of file names.
-  // A full implementation would require a file picker and managing File objects.
-  final List<String> _files = [];
+  final List<io.File> _files = [];
 
   String _codeLang = 'javascript';
   bool _isLoading = false;
@@ -34,7 +40,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     final start = selection.start;
     final end = selection.end;
     final selectedText = selection.textInside(text);
-    
+
     final newText = text.substring(0, start) +
         prefix +
         selectedText +
@@ -43,23 +49,23 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
     _descriptionController.value = TextEditingValue(
       text: newText,
-      selection: TextSelection.collapsed(offset: end + prefix.length + (suffix?.length ?? prefix.length)),
+      selection: TextSelection.collapsed(
+          offset: end + prefix.length + (suffix?.length ?? prefix.length)),
     );
   }
 
   void _insertAtCursor(String content) {
-      final text = _descriptionController.text;
-      final selection = _descriptionController.selection;
-      if (!selection.isValid) return;
+    final text = _descriptionController.text;
+    final selection = _descriptionController.selection;
+    if (!selection.isValid) return;
 
-      final start = selection.start;
-      final newText = text.substring(0, start) + content + text.substring(start);
-      _descriptionController.value = TextEditingValue(
-        text: newText,
-        selection: TextSelection.collapsed(offset: start + content.length),
-      );
+    final start = selection.start;
+    final newText = text.substring(0, start) + content + text.substring(start);
+    _descriptionController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: start + content.length),
+    );
   }
-
 
   Future<void> _submitPost() async {
     if (_titleController.text.trim().isEmpty) {
@@ -69,42 +75,65 @@ class _AddPostScreenState extends State<AddPostScreen> {
       return;
     }
 
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
 
     final authService = Provider.of<AuthService>(context, listen: false);
-    
-    final postData = {
-      'titles': _titleController.text,
-      'caption': _descriptionController.text,
-      'tags': _tagsController.text.split(',').map((s) => s.trim()).toList(),
-      'location': '', // Placeholder
-      'code_snippet': {
-        'language': _codeLang,
-        'content': _codeController.text,
-      },
-    };
 
     try {
-      await authService.createPost(postData); 
+      // 1. Upload files
+      List<String> uploadedFileIds = [];
+      for (final file in _files) {
+        final uploadedFile = await _appwriteService.uploadFile(file);
+        uploadedFileIds.add(uploadedFile.$id);
+      }
+
+      final postData = {
+        'titles': _titleController.text,
+        'caption': _descriptionController.text,
+        'tags': _tagsController.text.split(',').map((s) => s.trim()).toList(),
+        'location': '', // Placeholder
+        'code_snippet': {
+          'language': _codeLang,
+          'content': _codeController.text,
+        },
+        'file_ids': uploadedFileIds,
+      };
+
+      await authService.createPost(postData);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Post created!')),
         );
         context.go('/');
       }
-    } catch (e) {
+    } on AppwriteException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create post: $e')),
+          SnackBar(content: Text('Failed to create post: ${e.message}')),
         );
       }
     } finally {
       if (mounted) {
-        setState(() { _isLoading = false; });
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
-  
+
+  Future<void> _pickFiles() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
+
+    if (result != null) {
+      setState(() {
+        _files.addAll(result.paths.map((path) => io.File(path!)));
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +149,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _submitPost,
               child: _isLoading
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2,))
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ))
                   : const Text('Publish'),
             ),
           ),
@@ -131,6 +165,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildAttachments(),
+            const SizedBox(height: 16),
             // Title
             TextField(
               controller: _titleController,
@@ -148,10 +184,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
             // Code Editor
             _buildCodeEditor(),
-            const SizedBox(height: 16),
-
-            // Attachments - simplified
-            _buildAttachments(),
             const SizedBox(height: 16),
 
             // Tags
@@ -179,17 +211,33 @@ class _AddPostScreenState extends State<AddPostScreen> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              IconButton(icon: const Icon(Icons.format_bold), onPressed: () => _wrapSelection('**')),
-              IconButton(icon: const Icon(Icons.format_italic), onPressed: () => _wrapSelection('*')),
-              IconButton(icon: const Icon(Icons.looks_one), onPressed: () => _insertAtCursor('# ')),
-              IconButton(icon: const Icon(Icons.looks_two), onPressed: () => _insertAtCursor('## ')),
-              IconButton(icon: const Icon(Icons.format_list_bulleted), onPressed: () => _insertAtCursor('\n- ')),
-              IconButton(icon: const Icon(Icons.format_list_numbered), onPressed: () => _insertAtCursor('\n1. ')),
-              IconButton(icon: const Icon(Icons.code), onPressed: () => _wrapSelection('`')),
-              IconButton(icon: const Icon(Icons.insert_link), onPressed: () {
-                  // Simplified link insertion
-                  _wrapSelection('[', '](url)');
-              }),
+              IconButton(
+                  icon: const Icon(Icons.format_bold),
+                  onPressed: () => _wrapSelection('**')),
+              IconButton(
+                  icon: const Icon(Icons.format_italic),
+                  onPressed: () => _wrapSelection('*')),
+              IconButton(
+                  icon: const Icon(Icons.looks_one),
+                  onPressed: () => _insertAtCursor('# ')),
+              IconButton(
+                  icon: const Icon(Icons.looks_two),
+                  onPressed: () => _insertAtCursor('## ')),
+              IconButton(
+                  icon: const Icon(Icons.format_list_bulleted),
+                  onPressed: () => _insertAtCursor('\n- ')),
+              IconButton(
+                  icon: const Icon(Icons.format_list_numbered),
+                  onPressed: () => _insertAtCursor('\n1. ')),
+              IconButton(
+                  icon: const Icon(Icons.code),
+                  onPressed: () => _wrapSelection('`')),
+              IconButton(
+                  icon: const Icon(Icons.insert_link),
+                  onPressed: () {
+                    // Simplified link insertion
+                    _wrapSelection('[', '](url)');
+                  }),
             ],
           ),
         ),
@@ -214,7 +262,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
       children: [
         Row(
           children: [
-            const Text('Code Snippet', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Code Snippet',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const Spacer(),
             DropdownButton<String>(
               value: _codeLang,
@@ -225,8 +274,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   });
                 }
               },
-              items: <String>['javascript', 'typescript', 'python', 'java', 'csharp', 'sql', 'json', 'dart']
-                  .map<DropdownMenuItem<String>>((String value) {
+              items: <String>[
+                'javascript',
+                'typescript',
+                'python',
+                'java',
+                'csharp',
+                'sql',
+                'json',
+                'dart'
+              ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -251,25 +308,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Widget _buildAttachments() {
-    // File picking is a complex operation that requires a dependency
-    // like file_picker. As I cannot add dependencies, I will just
-    // show a placeholder button.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Attachments', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
         ElevatedButton.icon(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('File picking is not implemented in this version.')),
-            );
-          },
+          onPressed: _pickFiles,
           icon: const Icon(Icons.attach_file),
           label: const Text('Add Files'),
         ),
-        // Display selected files (mock)
-        ..._files.map((fileName) => Text(fileName)),
+        const SizedBox(height: 8),
+        _files.isEmpty
+            ? const Center(child: Text('No files selected.'))
+            : Container(
+                constraints: const BoxConstraints(
+                  maxHeight: 200,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade700),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _files.length,
+                  itemBuilder: (context, index) {
+                    final file = _files[index];
+                    return ListTile(
+                      leading: const Icon(Icons.insert_drive_file),
+                      title: Text(file.path.split('/').last),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        onPressed: () {
+                          setState(() {
+                            _files.removeAt(index);
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }

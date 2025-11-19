@@ -19,6 +19,14 @@ class ProfileScreen extends StatelessWidget {
             context.go('/');
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              context.go('/settings');
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<User?>(
         future: authService.getCurrentUser(),
@@ -28,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
           }
           if (!snapshot.hasData) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go('/signin');
+              context.go('./signin');
             });
             return const Center(child: Text('Redirecting to sign in...'));
           }
@@ -41,24 +49,43 @@ class ProfileScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text(user.name[0]),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30,
+                        child: Text(
+                          user.name[0],
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      title: Text(user.name,
+                          style: Theme.of(context).textTheme.headlineSmall),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user.email,
+                              style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 4),
+                          Text('ID: ${user.id}',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
                     ),
-                    title: Text(user.name, style: Theme.of(context).textTheme.headlineSmall),
-                    subtitle: Text(user.email, style: Theme.of(context).textTheme.titleMedium),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Center(
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.add, size: 28),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.go('/add-post');
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add'),
                   ),
                 ),
                 const SizedBox(height: 16),

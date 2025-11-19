@@ -12,6 +12,7 @@ import 'lens_screen.dart';
 import 'sign_in.dart';
 import 'sign_up.dart';
 import 'profile_screen.dart';
+import 'settings_screen.dart';
 import 'theme_model.dart';
 
 Future<void> main() async {
@@ -93,6 +94,10 @@ GoRouter _createRouter(AuthService authService) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+       GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: '/search',
