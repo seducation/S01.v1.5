@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/chat_messaging_screen.dart';
+import 'package:myapp/contact_pop_up_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ChatModel {
@@ -229,9 +230,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-            backgroundColor: const Color(0xFF65a9e0),
-            onPressed: () {},
-            child: const Icon(Icons.create, color: Colors.white)),
+          backgroundColor: const Color(0xFF65a9e0),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const CreateRowDialog(),
+            );
+          },
+          child: const Icon(Icons.create, color: Colors.white),
+        ),
       ),
     );
   }

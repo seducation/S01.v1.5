@@ -387,7 +387,7 @@ class _CustomNullTextFieldState extends State<CustomNullTextField> {
                     if (widget.maxLength != null)
                       ValueListenableBuilder(
                         valueListenable: _controller,
-                        builder: (context, TextEditingValue value, __) {
+                        builder: (context, TextEditingValue value, _) {
                           return Text(
                             "${value.text.length}/${widget.maxLength}",
                             style: const TextStyle(color: Colors.grey, fontSize: 12),

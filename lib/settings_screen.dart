@@ -35,10 +35,11 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const ListTile(
-                      leading: Icon(Icons.shield_outlined),
-                      title: Text('App Permission'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                    ListTile(
+                      leading: const Icon(Icons.shield_outlined),
+                      title: const Text('App Permission'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_app_permission'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.dark_mode_outlined),
@@ -50,49 +51,76 @@ class SettingsScreen extends StatelessWidget {
                           builder: (context) {
                             return AlertDialog(
                               title: const Text('Dark Mode'),
-                              content: RadioGroup<ThemeMode>(
-                                groupValue: context.watch<ThemeModel>().themeMode,
-                                onChanged: (value) {
-                                  context.read<ThemeModel>().themeMode = value!;
-                                  Navigator.of(context).pop();
+                              content: Consumer<ThemeModel>(
+                                builder: (context, themeModel, child) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        title: const Text('Light'),
+                                        leading: Radio.adaptive<ThemeMode>(
+                                          value: ThemeMode.light,
+                                          groupValue: themeModel.themeMode,
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              themeModel.themeMode = value;
+                                            }
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: const Text('Dark'),
+                                        leading: Radio.adaptive<ThemeMode>(
+                                          value: ThemeMode.dark,
+                                          groupValue: themeModel.themeMode,
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              themeModel.themeMode = value;
+                                            }
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: const Text('System'),
+                                        leading: Radio.adaptive<ThemeMode>(
+                                          value: ThemeMode.system,
+                                          groupValue: themeModel.themeMode,
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              themeModel.themeMode = value;
+                                            }
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  );
                                 },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    RadioListTile<ThemeMode>(
-                                      title: Text('Light'),
-                                      value: ThemeMode.light,
-                                    ),
-                                    RadioListTile<ThemeMode>(
-                                      title: Text('Dark'),
-                                      value: ThemeMode.dark,
-                                    ),
-                                    RadioListTile<ThemeMode>(
-                                      title: Text('System'),
-                                      value: ThemeMode.system,
-                                    ),
-                                  ],
-                                ),
                               ),
                             );
                           },
                         );
                       },
                     ),
-                    const ListTile(
-                      leading: Icon(Icons.font_download_outlined),
-                      title: Text('Font'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                    ListTile(
+                      leading: const Icon(Icons.font_download_outlined),
+                      title: const Text('Font'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_font'),
                     ),
-                    const ListTile(
-                      leading: Icon(Icons.location_on_outlined),
-                      title: Text('Location'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                    ListTile(
+                      leading: const Icon(Icons.location_on_outlined),
+                      title: const Text('Location'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_location'),
                     ),
-                    const ListTile(
-                      leading: Icon(Icons.online_prediction_outlined),
-                      title: Text('Active Status'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                    ListTile(
+                      leading: const Icon(Icons.online_prediction_outlined),
+                      title: const Text('Active Status'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_active_status'),
                     ),
                   ],
                 ),
@@ -104,21 +132,30 @@ class SettingsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Column(
-                  children: const [
+                  children: [
                     ListTile(
-                      leading: Icon(Icons.privacy_tip_outlined),
-                      title: Text('Privacy'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      leading: const Icon(Icons.person_outline),
+                      title: const Text('Personal Info'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_personal_info'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.safety_check_outlined),
-                      title: Text('Safety'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: const Text('Privacy'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_privacy'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.delete_outline),
-                      title: Text('Delete'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      leading: const Icon(Icons.safety_check_outlined),
+                      title: const Text('Safety'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_safety'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.delete_outline),
+                      title: const Text('Delete'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_delete'),
                     ),
                   ],
                 ),
@@ -130,16 +167,18 @@ class SettingsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Column(
-                  children: const [
+                  children: [
                     ListTile(
-                      leading: Icon(Icons.support_agent_outlined),
-                      title: Text('Support'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      leading: const Icon(Icons.support_agent_outlined),
+                      title: const Text('Support'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_support'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.emergency_outlined),
-                      title: Text('Emergency'),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      leading: const Icon(Icons.emergency_outlined),
+                      title: const Text('Emergency'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => context.go('/setting_emergency'),
                     ),
                   ],
                 ),

@@ -13,7 +13,17 @@ import 'sign_in.dart';
 import 'sign_up.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';
+import 'setting_personal_info_screen.dart';
 import 'theme_model.dart';
+import 'setting_active_status_screen.dart';
+import 'setting_app_permission_screen.dart';
+import 'setting_delete_screen.dart';
+import 'setting_emergency_screen.dart';
+import 'setting_font_screen.dart';
+import 'setting_location_screen.dart';
+import 'setting_privacy_screen.dart';
+import 'setting_safety_screen.dart';
+import 'setting_support_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -100,8 +110,48 @@ GoRouter _createRouter(AuthService authService) {
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
+        path: '/setting_personal_info',
+        builder: (context, state) => const SettingPersonalInfoScreen(),
+      ),
+      GoRoute(
         path: '/search',
         builder: (context, state) => const SearchScreen(),
+      ),
+       GoRoute(
+        path: '/setting_active_status',
+        builder: (context, state) => const SettingActiveStatusScreen(),
+      ),
+      GoRoute(
+        path: '/setting_app_permission',
+        builder: (context, state) => const SettingAppPermissionScreen(),
+      ),
+      GoRoute(
+        path: '/setting_delete',
+        builder: (context, state) => const SettingDeleteScreen(),
+      ),
+      GoRoute(
+        path: '/setting_emergency',
+        builder: (context, state) => const SettingEmergencyScreen(),
+      ),
+      GoRoute(
+        path: '/setting_font',
+        builder: (context, state) => const SettingFontScreen(),
+      ),
+      GoRoute(
+        path: '/setting_location',
+        builder: (context, state) => const SettingLocationScreen(),
+      ),
+      GoRoute(
+        path: '/setting_privacy',
+        builder: (context, state) => const SettingPrivacyScreen(),
+      ),
+      GoRoute(
+        path: '/setting_safety',
+        builder: (context, state) => const SettingSafetyScreen(),
+      ),
+      GoRoute(
+        path: '/setting_support',
+        builder: (context, state) => const SettingSupportScreen(),
       ),
     ],
   );

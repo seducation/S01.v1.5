@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'auth_service.dart';
+import 'widgets/add_pop_up_menu.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -82,7 +83,10 @@ class ProfileScreen extends StatelessWidget {
                 Center(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      context.go('/add-post');
+                      showDialog(
+                        context: context,
+                        builder: (context) => const CreateRowDialog(),
+                      );
                     },
                     icon: const Icon(Icons.add),
                     label: const Text('Add'),
