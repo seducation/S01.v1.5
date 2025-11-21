@@ -48,17 +48,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
     ];
   }
 
-  void _addOrUpdateChat(ChatModel chat) {
-    setState(() {
-      final index = _chatItems.indexWhere((c) => c.name == chat.name);
-      if (index != -1) {
-        _chatItems[index] = chat;
-      } else {
-        _chatItems.insert(0, chat);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
