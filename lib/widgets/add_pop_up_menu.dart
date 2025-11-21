@@ -1,73 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Defines the overall light theme for the application.
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Create Row UI',
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: Colors.grey[100], // Very light grey background
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFFF5265C), // The prominent pink accent color
-          surface: Colors.white, // White surface for cards/dialogs
-          onSurface: Colors.black87,
-          onPrimary: Colors.white,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 1,
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black87),
-          bodyMedium: TextStyle(color: Colors.black54),
-          labelLarge: TextStyle(color: Colors.black87),
-        ),
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home Page"),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF5265C),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          ),
-          onPressed: () {
-            // Shows the custom dialog when the button is pressed.
-            showDialog(
-              context: context,
-              builder: (context) => const CreateRowDialog(),
-            );
-          },
-          child: const Text("Open Create Row Popup"),
-        ),
-      ),
-    );
-  }
-}
-
 // The main dialog widget that contains the form.
 class CreateRowDialog extends StatefulWidget {
   const CreateRowDialog({super.key});
@@ -131,12 +63,10 @@ class _CreateRowDialogState extends State<CreateRowDialog> {
                         ),
                         SizedBox(height: 24),
 
-                        CustomNullTextField(
+                        DropdownWidget(
                           label: "description",
-                          hintText: "Enter string",
-                          maxLength: 1000,
-                          minLines: 3,
-                          icon: Icons.title,
+                          items: ["channel", "group", "community"],
+                          icon: Icons.category,
                         ),
                         SizedBox(height: 24),
 
@@ -431,6 +361,84 @@ class _CustomNullTextFieldState extends State<CustomNullTextField> {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class DropdownWidget extends StatefulWidget {
+  final String label;
+  final List<String> items;
+  final IconData icon;
+
+  const DropdownWidget({
+    super.key,
+    required this.label,
+    required this.items,
+    required this.icon,
+  });
+
+  @override
+  DropdownWidgetState createState() => DropdownWidgetState();
+}
+
+class DropdownWidgetState extends State<DropdownWidget> {
+  String? _selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.items.first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(widget.icon, size: 14, color: Colors.grey.shade600),
+            const SizedBox(width: 6),
+            RichText(
+              text: TextSpan(
+                text: widget.label,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+                children: const [
+                  TextSpan(
+                    text: " optional",
+                    style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: DropdownButton<String>(
+            value: _selectedValue,
+            isExpanded: true,
+            underline: Container(),
+            items: widget.items.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedValue = newValue;
+              });
+            },
           ),
         ),
       ],

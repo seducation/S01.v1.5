@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/search_result_tile.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -9,9 +10,23 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _searchResults = [];
+  List<SearchItem> _searchResults = [];
   bool _isLoading = false;
-  bool _isSearching = false;
+
+  final List<SearchItem> _historyItems = [
+    SearchItem(text: "chatgpt"),
+    SearchItem(text: "figma"),
+    SearchItem(text: "idx google"),
+    SearchItem(text: "apple tv mobile ui", subtitle: "Images"),
+    SearchItem(text: "github"),
+    SearchItem(text: "hotstar"),
+    SearchItem(text: "zee5"),
+    SearchItem(text: "hotstar like ui", subtitle: "Images"),
+    SearchItem(text: "apple tv"),
+    SearchItem(text: "telegram"),
+    SearchItem(text: "Google"),
+    SearchItem(text: "wbuhs"),
+  ];
 
   @override
   void initState() {
@@ -41,10 +56,10 @@ class _SearchScreenState extends State<SearchScreen> {
       // Mock search results
       _searchResults = List.generate(
         10,
-        (index) => {
-          'name': '$query result $index',
-          'description': 'This is a mock description for result $index',
-        },
+        (index) => SearchItem(
+          text: '$query result $index',
+          subtitle: 'This is a mock description for result $index',
+        ),
       );
       _isLoading = false;
     });
@@ -57,331 +72,168 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Widget _buildToolIcon(IconData icon, String label) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: Colors.grey[200],
-          child: Icon(icon, size: 28, color: Colors.black87),
-        ),
-        const SizedBox(height: 8),
-        Text(label),
-      ],
-    );
-  }
-
-  Widget _buildSubscriptionTile(String name) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Center(
-        child: Text(
-          name,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInitialLayout() {
-    return SingleChildScrollView(
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 120),
-                const Center(
-                  child: Text(
-                    'My App',
-                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Card(
-                  elevation: 3.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onTap: () {
-                      setState(() {
-                        _isSearching = true;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      suffixIcon: const Icon(Icons.mic, color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Tools',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildToolIcon(Icons.science_outlined, 'Labs'),
-                    _buildToolIcon(Icons.list_alt_outlined, 'Lits'),
-                    _buildToolIcon(Icons.payment, 'Payment'),
-                    _buildToolIcon(Icons.construction_outlined, 'Tools'),
-                    _buildToolIcon(Icons.history, 'History'),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Subscription',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildSubscriptionTile('R4'),
-                          const SizedBox(height: 8),
-                          _buildSubscriptionTile('R5'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(child: _buildSubscriptionTile('R1')),
-                              const SizedBox(width: 8),
-                              Expanded(child: _buildSubscriptionTile('R2')),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          _buildSubscriptionTile('R3'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Settings',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      'show more',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildToolIcon(Icons.settings, 'S1'),
-                    _buildToolIcon(Icons.settings, 'S2'),
-                    _buildToolIcon(Icons.settings, 'S3'),
-                    _buildToolIcon(Icons.settings, 'S4'),
-                    _buildToolIcon(Icons.settings, 'S5'),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildToolIcon(Icons.settings, 'S6'),
-                    _buildToolIcon(Icons.settings, 'S7'),
-                    _buildToolIcon(Icons.settings, 'S8'),
-                    _buildToolIcon(Icons.settings, 'S9'),
-                    _buildToolIcon(Icons.settings, 'S10'),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Insight',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Graph Area',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1F1F1F),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            const Divider(height: 1, color: Colors.white10),
+            Expanded(
+              child: _searchController.text.isEmpty
+                  ? _buildHistoryList()
+                  : _buildSearchResults(),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      color: const Color(0xFF1F1F1F),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.grey),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          Positioned(
-            top: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Menu button pressed'),
-                        ));
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    // Placeholder for weather widget
-                    const Row(
-                      children: [
-                        Icon(Icons.wb_sunny, color: Colors.orange),
-                        SizedBox(width: 4),
-                        Text('25°C', style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    // Placeholder for location widget
-                    const Row(
-                      children: [
-                        Icon(Icons.location_on, color: Colors.blue),
-                        SizedBox(width: 4),
-                        Text('New York', style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.map),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Map button pressed'),
-                        ));
-                      },
-                    ),
-                  ],
-                ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: "Search...",
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
               ),
             ),
           ),
+          _buildGradientIcon(Icons.mic, [
+            Colors.blue,
+            Colors.red,
+            Colors.yellow,
+            Colors.green
+          ]),
+          const SizedBox(width: 16),
+          _buildGradientIcon(Icons.camera_alt_outlined, [
+            Colors.blue,
+            Colors.red,
+            Colors.yellow,
+            Colors.green
+          ]),
+          const SizedBox(width: 8),
         ],
       ),
     );
   }
 
-  Widget _buildSearchLayout() {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              setState(() {
-                _isSearching = false;
-                _searchController.clear();
-                _searchResults = [];
-              });
-            },
-          ),
-          title: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0),
-            ),
-            child: TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                suffixIcon: const Icon(Icons.mic, color: Colors.grey),
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ),
-          backgroundColor: Colors.white,
-          pinned: true,
-        ),
-        if (_isLoading)
-          const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          )
-        else if (_searchResults.isEmpty && _searchController.text.isNotEmpty)
-          const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('No results found.'),
-              ),
-            ),
-          )
-        else
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final hit = _searchResults[index];
-                return ListTile(
-                  title: Text(hit['name'] ?? 'No name'),
-                  subtitle: Text(hit['description'] ?? ''),
-                );
-              },
-              childCount: _searchResults.length,
-            ),
-          ),
-      ],
+  Widget _buildHistoryList() {
+    return ListView.builder(
+      itemCount: _historyItems.length,
+      itemBuilder: (context, index) {
+        return _buildHistoryItem(_historyItems[index]);
+      },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: _isSearching ? _buildSearchLayout() : _buildInitialLayout(),
+  Widget _buildSearchResults() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_searchResults.isEmpty) {
+      return const Center(
+          child: Text('No results found.',
+              style: TextStyle(color: Colors.white)));
+    } else {
+      return ListView.builder(
+        itemCount: _searchResults.length,
+        itemBuilder: (context, index) {
+          final item = _searchResults[index];
+          return ListTile(
+            title: Text(item.text, style: const TextStyle(color: Colors.white)),
+            subtitle: item.subtitle != null
+                ? Text(item.subtitle!,
+                    style: const TextStyle(color: Colors.grey))
+                : null,
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildHistoryItem(SearchItem item) {
+    return InkWell(
+      onTap: () {
+        _searchController.text = item.text;
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.schedule,
+              color: Colors.grey,
+              size: 22,
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.text,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFFE3E3E3),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  if (item.subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.subtitle!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            ),
+            const SizedBox(width: 40),
+            const Icon(
+              Icons.north_west,
+              color: Colors.grey,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGradientIcon(IconData icon, List<Color> colors) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+          tileMode: TileMode.mirror,
+        ).createShader(bounds);
+      },
+      child: Icon(icon, color: Colors.white),
     );
   }
 }

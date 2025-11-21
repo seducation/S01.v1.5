@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
             // Shows the custom dialog when the button is pressed.
             showDialog(
               context: context,
-              builder: (context) => const CreateRowDialog(),
+              builder: (context) => const FindContactDialog(),
             );
           },
           child: const Text("Open Create Row Popup"),
@@ -69,14 +69,14 @@ class HomePage extends StatelessWidget {
 }
 
 // The main dialog widget that contains the form.
-class CreateRowDialog extends StatefulWidget {
-  const CreateRowDialog({super.key});
+class FindContactDialog extends StatefulWidget {
+  const FindContactDialog({super.key});
 
   @override
-  State<CreateRowDialog> createState() => _CreateRowDialogState();
+  State<FindContactDialog> createState() => _FindContactDialogState();
 }
 
-class _CreateRowDialogState extends State<CreateRowDialog> {
+class _FindContactDialogState extends State<FindContactDialog> {
   // State for the "Create more" toggle switch.
   bool _createMore = false;
 
@@ -90,7 +90,7 @@ class _CreateRowDialogState extends State<CreateRowDialog> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           insetPadding: const EdgeInsets.all(16),
           child: Container(
-            width: 500, // Max width for tablet/desktop
+            width: 400, // Max width for tablet/desktop
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -102,7 +102,7 @@ class _CreateRowDialogState extends State<CreateRowDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Create row",
+                        "Find Contact",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black87),
                       ),
                       IconButton(
@@ -262,11 +262,13 @@ class InfoBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.blue.shade50, // Light blue background
-        border: Border.all(color: Colors.blue.shade100),
-        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          top: BorderSide(color: Colors.blue.shade100),
+          bottom: BorderSide(color: Colors.blue.shade100),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

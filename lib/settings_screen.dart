@@ -53,49 +53,37 @@ class SettingsScreen extends StatelessWidget {
                               title: const Text('Dark Mode'),
                               content: Consumer<ThemeModel>(
                                 builder: (context, themeModel, child) {
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: const Text('Light'),
-                                        leading: Radio.adaptive<ThemeMode>(
-                                          value: ThemeMode.light,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
+                                  return RadioGroup(
+                                    groupValue: themeModel.themeMode,
+                                    onChanged: (ThemeMode? value) {
+                                      if (value != null) {
+                                        themeModel.themeMode = value;
+                                      }
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ListTile(
+                                          title: const Text('Light'),
+                                          leading: Radio<ThemeMode>(
+                                            value: ThemeMode.light,
+                                          ),
                                         ),
-                                      ),
-                                      ListTile(
-                                        title: const Text('Dark'),
-                                        leading: Radio.adaptive<ThemeMode>(
-                                          value: ThemeMode.dark,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
+                                        ListTile(
+                                          title: const Text('Dark'),
+                                          leading: Radio<ThemeMode>(
+                                            value: ThemeMode.dark,
+                                          ),
                                         ),
-                                      ),
-                                      ListTile(
-                                        title: const Text('System'),
-                                        leading: Radio.adaptive<ThemeMode>(
-                                          value: ThemeMode.system,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
+                                        ListTile(
+                                          title: const Text('System'),
+                                          leading: Radio<ThemeMode>(
+                                            value: ThemeMode.system,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   );
                                 },
                               ),
