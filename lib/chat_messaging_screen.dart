@@ -1,32 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/chat_call_screen.dart';
+import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/widgets/chat_app_bar.dart';
 
 class ChatMessagingScreen extends StatelessWidget {
-  final String imgPath;
-  final String name;
-  final String time;
-  final String status;
-  final String message;
+  final ChatModel chat;
   final Function(String) onMessageSent;
 
-  const ChatMessagingScreen({
-    super.key,
-    required this.imgPath,
-    required this.name,
-    required this.time,
-    required this.status,
-    required this.message,
-    required this.onMessageSent,
-  });
+  const ChatMessagingScreen(
+      {super.key, required this.chat, required this.onMessageSent});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChatAppBar(
-        urlImage: imgPath,
-        title: name,
-        onOff: status,
+        urlImage: chat.imgPath,
+        title: chat.name,
+        onOff: chat.isOnline ? "Online" : "Offline",
         onCallPressed: () {
           Navigator.push(
             context,
@@ -34,7 +24,7 @@ class ChatMessagingScreen extends StatelessWidget {
           );
         },
       ),
-      body: ChatScr(onMessageSent: onMessageSent, message: message),
+      body: ChatScr(onMessageSent: onMessageSent, message: chat.message),
     );
   }
 }
@@ -68,6 +58,7 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
     });
     widget.onMessageSent(text);
     _focusNode.requestFocus();
+    Navigator.pop(context); // Go back to the previous screen
   }
 
   Widget _buildTextComposer() {

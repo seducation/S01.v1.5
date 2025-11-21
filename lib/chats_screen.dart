@@ -1,118 +1,62 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:my_app/chat_call_screen.dart';
+import 'package:my_app/cnm_calls_tabscreen.dart';
+import 'package:my_app/cnm_chats_tabscreen.dart';
+import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/select_contact_screen.dart';
-import 'package:shimmer/shimmer.dart';
-
-import 'chat_messaging_screen.dart';
-
-class ChatModel {
-  final String name;
-  final String message;
-  final String time;
-  final String imgPath;
-  final bool status;
-  final int? messNum;
-
-  ChatModel({
-    required this.name,
-    required this.message,
-    required this.time,
-    required this.imgPath,
-    this.status = false,
-    this.messNum,
-  });
-}
+import 'package:my_app/cnm_notifications_tabscreen.dart';
+import 'package:my_app/cnm_updates_tabscreen.dart';
+import 'package:my_app/cnm_reply_tabscreen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
+
   @override
   State<ChatsScreen> createState() => _ChatsScreenState();
 }
 
 class _ChatsScreenState extends State<ChatsScreen> {
-  late List<ChatModel> items;
-  late List<StoryItem> stories;
-  bool isLoading = true;
+  late List<ChatModel> _chatItems;
 
   @override
   void initState() {
     super.initState();
-    items = [
+    _chatItems = [
       ChatModel(
         name: "User 1",
         message: "Hello there!",
         time: "12:30 PM",
         imgPath: "https://picsum.photos/seed/p1/200/200",
-        status: true,
-        messNum: 2,
+        isOnline: true,
+        messageCount: 2,
+        hasStory: true,
       ),
       ChatModel(
         name: "User 2",
         message: "How are you?",
         time: "12:35 PM",
         imgPath: "https://picsum.photos/seed/p2/200/200",
+        hasStory: true,
       ),
       ChatModel(
         name: "User 3",
         message: "See you soon.",
         time: "12:40 PM",
         imgPath: "https://picsum.photos/seed/p3/200/200",
-        status: true,
-        messNum: 1,
+        isOnline: true,
+        messageCount: 1,
       ),
     ];
-    stories = [
-      StoryItem(name: 'Alex', imageUrl: 'https://picsum.photos/seed/s1/200/200'),
-      StoryItem(name: 'Ben', imageUrl: 'https://picsum.photos/seed/s2/200/200'),
-      StoryItem(
-          name: 'Catherine',
-          imageUrl: 'https://picsum.photos/seed/s3/200/200'),
-      StoryItem(name: 'David', imageUrl: 'https://picsum.photos/seed/s4/200/200'),
-      StoryItem(name: 'Ella', imageUrl: 'https://picsum.photos/seed/s5/200/200'),
-      StoryItem(name: 'Frank', imageUrl: 'https://picsum.photos/seed/s6/200/200'),
-      StoryItem(name: 'Grace', imageUrl: 'https://picsum.photos/seed/s7/200/200'),
-      StoryItem(name: 'Henry', imageUrl: 'https://picsum.photos/seed/s8/200/200'),
-    ];
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    });
   }
 
-  Route createRoute(
-    String imgPath,
-    String name,
-    String time,
-    String status,
-    String message,
-  ) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          ChatMessagingScreen(
-        imgPath: imgPath,
-        name: name,
-        time: time,
-        status: status,
-        message: message,
-      ),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
+  void _addOrUpdateChat(ChatModel chat) {
+    setState(() {
+      final index = _chatItems.indexWhere((c) => c.name == chat.name);
+      if (index != -1) {
+        _chatItems[index] = chat;
+      } else {
+        _chatItems.insert(0, chat);
+      }
+    });
   }
 
   @override
@@ -121,269 +65,47 @@ class _ChatsScreenState extends State<ChatsScreen> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              context.go('/profile');
-            },
-            icon: const Icon(Icons.menu),
-          ),
-          title: const Text('myapps'),
-          actions: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.comment),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.person_add),
-            ),
+          title: const Text("WhatsApp"),
+          actions: [
             IconButton(
               icon: const Icon(Icons.search),
-              onPressed: () => context.go('/search'),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {},
             ),
           ],
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.notifications)),
-              Tab(icon: Icon(Icons.add_circle_outline)),
-              Tab(text: "Chats"),
-              Tab(icon: Icon(Icons.meeting_room_outlined)),
+              Tab(text: "Updates"),
+              Tab(text: "Chat"),
+              Tab(text: "Reply"),
               Tab(icon: Icon(Icons.call)),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            const Center(child: Text("Notifications")),
-            const Center(child: Text("Add")),
-            ListView(
-              children: [
-                const SizedBox(height: 10),
-                StatusBar(
-                  isLoading: isLoading,
-                  stories: stories,
-                ),
-                ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (ctx, i) {
-                      return ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            createRoute(
-                              items[i].imgPath,
-                              items[i].name,
-                              items[i].time,
-                              items[i].status ? "Online" : "Offline",
-                              items[i].message,
-                            ),
-                          );
-                        },
-                        leading: CircleAvatar(
-                          radius: 28,
-                          child: ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: items[i].imgPath,
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 56,
-                                  height: 56,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
-                              fit: BoxFit.cover,
-                              width: 56,
-                              height: 56,
-                            ),
-                          ),
-                        ),
-                        title: items[i].status
-                            ? Text(
-                                items[i].name,
-                                style:
-                                    const TextStyle(fontWeight: FontWeight.bold),
-                              )
-                            : Row(
-                                children: [
-                                  Text(
-                                    items[i].name,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Icon(
-                                    Icons.volume_mute,
-                                    size: 18,
-                                    color: Colors.grey[400],
-                                  )
-                                ],
-                              ),
-                        subtitle: Text(
-                          items[i].message,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        trailing: items[i].messNum != null
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(items[i].time),
-                                  const SizedBox(
-                                    height: 7,
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        color: items[i].status
-                                            ? Colors.green
-                                            : Colors.grey[400],
-                                        borderRadius:
-                                            BorderRadius.circular(30)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        '${items[i].messNum}',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(items[i].time),
-                                  const SizedBox(
-                                    height: 7,
-                                  ),
-                                ],
-                              ),
-                      );
-                    },
-                    separatorBuilder: (ctx, i) {
-                      return const Divider();
-                    },
-                    itemCount: items.length),
-              ],
-            ),
-            const Center(child: Text("Meeting")),
-            const Panggilan(),
+            const CNMNotificationsTabscreen(),
+            const CNMUpdatesTabscreen(),
+            CNMChatsTabscreen(chatItems: _chatItems),
+            const CNMReplyTabscreen(),
+            const CNMCallsTabscreen(),
           ],
         ),
         floatingActionButton: FloatingActionButton(
-            backgroundColor: const Color(0xFF65a9e0),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const SelectContactScreen(),
-              ));
-            },
-            child: const Icon(Icons.create, color: Colors.white)),
-      ),
-    );
-  }
-}
-
-class StatusBar extends StatelessWidget {
-  final bool isLoading;
-  final List<StoryItem> stories;
-
-  const StatusBar({
-    super.key,
-    required this.isLoading,
-    required this.stories,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 110,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: isLoading ? 8 : stories.length,
-        itemBuilder: (context, index) {
-          if (isLoading) return _ShimmerStory();
-          return _StoryBubble(item: stories[index]);
-        },
-      ),
-    );
-  }
-}
-
-class StoryItem {
-  final String name;
-  final String imageUrl;
-
-  StoryItem({
-    required this.name,
-    required this.imageUrl,
-  });
-}
-
-class _StoryBubble extends StatelessWidget {
-  final StoryItem item;
-
-  const _StoryBubble({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 72,
-      margin: const EdgeInsets.only(right: 14),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(2.4),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  Colors.purple,
-                  Colors.orange,
-                ],
-              ),
-            ),
-            child: CircleAvatar(
-              radius: 28,
-              backgroundImage: NetworkImage(item.imageUrl),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            item.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ShimmerStory extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade900,
-      highlightColor: Colors.grey.shade700,
-      child: Container(
-        width: 72,
-        margin: const EdgeInsets.only(right: 14),
-        child: const Column(
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.black,
-            ),
-            SizedBox(height: 10),
-            Text('data')
-          ],
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SelectContactScreen(
+                        onNewChat: _addOrUpdateChat,
+                      )),
+            );
+          },
+          child: const Icon(Icons.message),
         ),
       ),
     );

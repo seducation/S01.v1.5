@@ -5,67 +5,21 @@ import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/one_time_message_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
-class CNMChatsTabscreen extends StatefulWidget {
-  const CNMChatsTabscreen({super.key});
+class CNMChatsTabscreen extends StatelessWidget {
+  final List<ChatModel> chatItems;
+  final bool isLoading;
 
-  @override
-  State<CNMChatsTabscreen> createState() => _CNMChatsTabscreenState();
-}
+  const CNMChatsTabscreen(
+      {super.key, required this.chatItems, this.isLoading = false});
 
-class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
-  late List<ChatModel> chatItems;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    chatItems = [
-      ChatModel(
-        name: "User 1",
-        message: "Hello there!",
-        time: "12:30 PM",
-        imgPath: "https://picsum.photos/seed/p1/200/200",
-        isOnline: true,
-        messageCount: 2,
-        hasStory: true,
-      ),
-      ChatModel(
-        name: "User 2",
-        message: "How are you?",
-        time: "12:35 PM",
-        imgPath: "https://picsum.photos/seed/p2/200/200",
-        hasStory: true,
-      ),
-      ChatModel(
-        name: "User 3",
-        message: "See you soon.",
-        time: "12:40 PM",
-        imgPath: "https://picsum.photos/seed/p3/200/200",
-        isOnline: true,
-        messageCount: 1,
-      ),
-    ];
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    });
-  }
-
-  void _viewStory(int index) {
+  void _viewStory(BuildContext context, int index) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => OneTimeMessageScreen(
           message: "This is a one-time message from ${chatItems[index].name}",
           onStoryViewed: () {
-            if (mounted) {
-              setState(() {
-                chatItems[index].hasStory = false;
-              });
-            }
+            // This should be handled by the parent widget
           },
         ),
       ),
@@ -75,20 +29,22 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: isLoading
           ? _buildShimmerLoading()
           : CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
-                  child: StatusBar(chatItems: chatItems, onViewStory: _viewStory),
+                  child: StatusBar(
+                      chatItems: chatItems,
+                      onViewStory: (index) => _viewStory(context, index)),
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final chat = chatItems[index];
                       return ChatListItem(
-                          chat: chat, onTap: () => _viewStory(index));
+                          chat: chat,
+                          onTap: () => _viewStory(context, index));
                     },
                     childCount: chatItems.length,
                   ),
@@ -100,8 +56,8 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
 
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[800]!,
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
       child: ListView.builder(
         itemCount: 8,
         itemBuilder: (context, index) => const ShimmerChatListItem(),
@@ -148,7 +104,7 @@ class StatusBar extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     chat.name,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    style: const TextStyle(color: Colors.black, fontSize: 12),
                   ),
                 ],
               ),
@@ -174,15 +130,9 @@ class ChatListItem extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ChatMessagingScreen(
-              imgPath: chat.imgPath,
-              name: chat.name,
-              time: chat.time,
-              status: chat.isOnline ? "Online" : "Offline",
-              message: chat.message,
+              chat: chat,
               onMessageSent: (newMessage) {
-                // Update the chat model with the new message and time
-                chat.message = newMessage;
-                chat.time = "Now"; // Or use a proper time formatting logic
+                // This should be handled by the parent widget
               },
             ),
           ),
@@ -196,7 +146,8 @@ class ChatListItem extends StatelessWidget {
           backgroundImage: CachedNetworkImageProvider(chat.imgPath),
         ),
       ),
-      title: Text(chat.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      title: Text(chat.name,
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
       subtitle: Text(chat.message, style: const TextStyle(color: Colors.grey)),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -229,8 +180,10 @@ class ShimmerChatListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return const ListTile(
       leading: CircleAvatar(radius: 30, backgroundColor: Colors.white),
-      title: SizedBox(height: 20, width: 150, child: ColoredBox(color: Colors.white)),
-      subtitle: SizedBox(height: 15, width: 100, child: ColoredBox(color: Colors.white)),
+      title: SizedBox(
+          height: 20, width: 150, child: ColoredBox(color: Colors.white)),
+      subtitle: SizedBox(
+          height: 15, width: 100, child: ColoredBox(color: Colors.white)),
     );
   }
 }

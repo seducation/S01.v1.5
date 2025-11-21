@@ -3,7 +3,9 @@ import 'package:my_app/chat_messaging_screen.dart';
 import 'package:my_app/model/chat_model.dart';
 
 class SelectContactScreen extends StatelessWidget {
-  const SelectContactScreen({super.key});
+  final Function(ChatModel) onNewChat;
+
+  const SelectContactScreen({super.key, required this.onNewChat});
 
   @override
   Widget build(BuildContext context) {
@@ -112,17 +114,12 @@ class SelectContactScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatMessagingScreen(
-                        imgPath: contact.imgPath,
-                        name: contact.name,
-                        time: contact.time,
-                        status: contact.isOnline ? "Online" : "Offline",
-                        message: contact.message,
+                        chat: contact,
                         onMessageSent: (newMessage) {
-                          // Find the contact in the list and update the message
-                          final index = contacts.indexWhere((c) => c.name == contact.name);
-                          if (index != -1) {
-                            contacts[index].message = newMessage;
-                          }
+                          final newChat = contact;
+                          newChat.message = newMessage;
+                          newChat.time = "Now"; // Or format current time
+                          onNewChat(newChat); // Call the callback from ChatsScreen
                         },
                       ),
                     ),
