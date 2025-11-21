@@ -65,7 +65,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("WhatsApp"),
+          title: const Text("MyApps"),
           actions: [
             IconButton(
               icon: const Icon(Icons.search),
