@@ -30,7 +30,12 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ChannelProfilePage()),
+            MaterialPageRoute(
+              builder: (context) => ChannelProfilePage(
+                name: title,
+                imageUrl: urlImage,
+              ),
+            ),
           );
         },
         child: Row(

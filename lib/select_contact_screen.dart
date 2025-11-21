@@ -1,10 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/chat_messaging_screen.dart';
+import 'package:my_app/model/chat_model.dart';
 
 class SelectContactScreen extends StatelessWidget {
   const SelectContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final List<ChatModel> contacts = [
+      ChatModel(
+        name: "Baby (You)",
+        message: "Message yourself",
+        time: "",
+        imgPath: "assets/baby.jpg", // Placeholder logic handles missing asset
+      ),
+      ChatModel(
+          name: "Alice",
+          message: "Busy",
+          time: "",
+          imgPath: "",
+          isOnline: true),
+      ChatModel(
+          name: "Alex Smith",
+          message: "At the gym",
+          time: "",
+          imgPath: ""),
+      ChatModel(
+          name: "Andrew",
+          message: "Urgent calls only",
+          time: "",
+          imgPath: ""),
+      ChatModel(name: "Mom", message: "Hey there! I am using WhatsApp.", time: "", imgPath: ""),
+      ChatModel(
+          name: "John Doe",
+          message: "Battery about to die",
+          time: "",
+          imgPath: ""),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -39,7 +72,6 @@ class SelectContactScreen extends StatelessWidget {
       body: ListView(
         children: [
           const SizedBox(height: 10),
-          
           // Static Action Items
           const ActionItem(
             icon: Icons.group,
@@ -73,42 +105,30 @@ class SelectContactScreen extends StatelessWidget {
           ),
 
           // Contact Items
-          const ContactItem(
-            name: "Baby (You)",
-            status: "Message yourself",
-            imageAsset: "assets/baby.jpg", // Placeholder logic handles missing asset
-            isMe: true,
-          ),
-          const ContactItem(
-            name: "Alice",
-            status: "Busy",
-            avatarColor: Colors.brown,
-            initials: "A",
-          ),
-          const ContactItem(
-            name: "Alex Smith",
-            status: "At the gym",
-            avatarColor: Colors.blueGrey,
-            initials: "A",
-          ),
-          const ContactItem(
-            name: "Andrew",
-            status: "Urgent calls only",
-            avatarColor: Colors.orangeAccent,
-            initials: "A",
-          ),
-          const ContactItem(
-            name: "Mom",
-            status: "Hey there! I am using WhatsApp.",
-            avatarColor: Colors.purple,
-            initials: "M",
-          ),
-           const ContactItem(
-            name: "John Doe",
-            status: "Battery about to die",
-            avatarColor: Colors.teal,
-            initials: "J",
-          ),
+          ...contacts.map((contact) => ContactItem(
+                contact: contact,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatMessagingScreen(
+                        imgPath: contact.imgPath,
+                        name: contact.name,
+                        time: contact.time,
+                        status: contact.isOnline ? "Online" : "Offline",
+                        message: contact.message,
+                        onMessageSent: (newMessage) {
+                          // Find the contact in the list and update the message
+                          final index = contacts.indexWhere((c) => c.name == contact.name);
+                          if (index != -1) {
+                            contacts[index].message = newMessage;
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              )),
         ],
       ),
     );
@@ -158,34 +178,24 @@ class ActionItem extends StatelessWidget {
 
 // Widget for individual contacts
 class ContactItem extends StatelessWidget {
-  final String name;
-  final String? status;
-  final String? imageAsset;
-  final Color? avatarColor;
-  final String? initials;
-  final bool isMe;
+  final ChatModel contact;
+  final VoidCallback onTap;
 
-  const ContactItem({
-    super.key,
-    required this.name,
-    this.status,
-    this.imageAsset,
-    this.avatarColor,
-    this.initials,
-    this.isMe = false,
-  });
+  const ContactItem({super.key, required this.contact, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       leading: CircleAvatar(
         radius: 22,
-        backgroundColor: avatarColor ?? Colors.grey[800],
-        backgroundImage: imageAsset != null ? AssetImage(imageAsset!) : null,
-        child: imageAsset == null
+        backgroundColor: Colors.grey[800],
+        backgroundImage:
+            contact.imgPath.isNotEmpty ? AssetImage(contact.imgPath) : null,
+        child: contact.imgPath.isEmpty
             ? Text(
-                initials ?? "",
+                contact.name.isNotEmpty ? contact.name[0] : "",
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -197,32 +207,27 @@ class ContactItem extends StatelessWidget {
       title: Row(
         children: [
           Text(
-            name,
+            contact.name,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w500,
             ),
           ),
-          if (isMe) ...[
-            const SizedBox(width: 4),
-          ]
         ],
       ),
-      subtitle: status != null
-          ? Padding(
-              padding: const EdgeInsets.only(top: 2.0),
-              child: Text(
-                status!,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            )
-          : null,
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 2.0),
+        child: Text(
+          contact.message,
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
 }

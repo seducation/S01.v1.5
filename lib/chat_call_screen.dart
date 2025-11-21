@@ -89,7 +89,12 @@ class _PanggilanState extends State<Panggilan> {
                         color: Colors.green,
                         size: 15,
                       ),
-                      Text(items.subtitle),
+                      Expanded(
+                        child: Text(
+                          items.subtitle,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                   trailing: const Icon(

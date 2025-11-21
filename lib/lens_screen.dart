@@ -3,6 +3,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class LensScreen extends StatefulWidget {
@@ -174,7 +175,7 @@ class _LensScreenState extends State<LensScreen> {
               IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  // Handle menu icon press
+                  context.go('/profile');
                 },
               ),
             ],

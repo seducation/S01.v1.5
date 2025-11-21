@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/chat_call_screen.dart';
 import 'package:my_app/select_contact_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -40,7 +41,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     super.initState();
     items = [
       ChatModel(
-        name: "John Doe",
+        name: "User 1",
         message: "Hello there!",
         time: "12:30 PM",
         imgPath: "https://picsum.photos/seed/p1/200/200",
@@ -48,13 +49,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
         messNum: 2,
       ),
       ChatModel(
-        name: "Jane Doe",
+        name: "User 2",
         message: "How are you?",
         time: "12:35 PM",
         imgPath: "https://picsum.photos/seed/p2/200/200",
       ),
       ChatModel(
-        name: "Peter Jones",
+        name: "User 3",
         message: "See you soon.",
         time: "12:40 PM",
         imgPath: "https://picsum.photos/seed/p3/200/200",
@@ -121,7 +122,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go('/profile');
+            },
             icon: const Icon(Icons.menu),
           ),
           title: const Text('myapps'),
@@ -266,7 +269,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               ],
             ),
             const Center(child: Text("Meeting")),
-            const Center(child: Text("Calls")),
+            const Panggilan(),
           ],
         ),
         floatingActionButton: FloatingActionButton(

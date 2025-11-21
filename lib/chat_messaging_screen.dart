@@ -8,6 +8,7 @@ class ChatMessagingScreen extends StatelessWidget {
   final String time;
   final String status;
   final String message;
+  final Function(String) onMessageSent;
 
   const ChatMessagingScreen({
     super.key,
@@ -16,6 +17,7 @@ class ChatMessagingScreen extends StatelessWidget {
     required this.time,
     required this.status,
     required this.message,
+    required this.onMessageSent,
   });
 
   @override
@@ -32,13 +34,15 @@ class ChatMessagingScreen extends StatelessWidget {
           );
         },
       ),
-      body: const ChatScr(),
+      body: ChatScr(onMessageSent: onMessageSent, message: message),
     );
   }
 }
 
 class ChatScr extends StatefulWidget {
-  const ChatScr({super.key});
+  final Function(String) onMessageSent;
+  final String message;
+  const ChatScr({super.key, required this.onMessageSent, required this.message});
 
   @override
   State<ChatScr> createState() => _ChatScrState();
@@ -49,11 +53,20 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
   final List<String> _messages = [];
   final FocusNode _focusNode = FocusNode();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.message.isNotEmpty) {
+      _messages.insert(0, widget.message);
+    }
+  }
+
   void _handleSubmitted(String text) {
     _textController.clear();
     setState(() {
       _messages.insert(0, text);
     });
+    widget.onMessageSent(text);
     _focusNode.requestFocus();
   }
 

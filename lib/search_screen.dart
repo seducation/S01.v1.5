@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/profile_page_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -40,12 +41,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _buildSearchBar(),
-            const Divider(height: 1, color: Colors.white10),
+            _buildSearchBar(context),
+            Divider(height: 1, color: theme.dividerColor),
             Expanded(
               child: _buildHistoryList(),
             ),
@@ -55,24 +57,35 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.grey),
-            onPressed: () => context.go('/'),
+            icon: Icon(Icons.menu, color: theme.colorScheme.onSurface.withAlpha(153)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChannelProfilePage(
+                    name: "User 1",
+                    imageUrl: "https://picsum.photos/seed/p1/200/200",
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: _searchController,
               autofocus: true,
-              style: const TextStyle(fontSize: 18),
-              decoration: const InputDecoration(
+              style: TextStyle(fontSize: 18, color: theme.colorScheme.onSurface),
+              decoration: InputDecoration(
                 hintText: "Search...",
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                hintStyle: TextStyle(color: theme.colorScheme.onSurface.withAlpha(153), fontSize: 18),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
                 isDense: true,
@@ -80,19 +93,25 @@ class _SearchScreenState extends State<SearchScreen> {
               onSubmitted: _submitSearch,
             ),
           ),
-          _buildGradientIcon(Icons.mic, [
-            Colors.blue,
-            Colors.red,
-            Colors.yellow,
-            Colors.green
-          ]),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Voice search action')),
+              );
+            },
+            icon: const Icon(Icons.mic),
+            color: theme.colorScheme.onSurface,
+          ),
           const SizedBox(width: 16),
-          _buildGradientIcon(Icons.camera_alt_outlined, [
-            Colors.blue,
-            Colors.red,
-            Colors.yellow,
-            Colors.green
-          ]),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Camera search action')),
+              );
+            },
+            icon: const Icon(Icons.camera_alt_outlined),
+            color: theme.colorScheme.onSurface,
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -109,6 +128,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildHistoryItem(String item) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: () {
         _searchController.text = item;
@@ -120,44 +140,31 @@ class _SearchScreenState extends State<SearchScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(width: 8),
-            const Icon(
+            Icon(
               Icons.schedule,
-              color: Colors.grey,
+              color: theme.colorScheme.onSurface.withAlpha(153),
               size: 22,
             ),
             const SizedBox(width: 24),
             Expanded(
               child: Text(
                 item,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ),
             const SizedBox(width: 40),
-            const Icon(
+            Icon(
               Icons.north_west,
-              color: Colors.grey,
+              color: theme.colorScheme.onSurface.withAlpha(153),
               size: 18,
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildGradientIcon(IconData icon, List<Color> colors) {
-    return ShaderMask(
-      shaderCallback: (Rect bounds) {
-        return LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: colors,
-          tileMode: TileMode.mirror,
-        ).createShader(bounds);
-      },
-      child: Icon(icon, color: Colors.white),
     );
   }
 }

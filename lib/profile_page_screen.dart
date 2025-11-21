@@ -10,7 +10,9 @@ import 'package:my_app/psv_videos_tabscreen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ChannelProfilePage extends StatefulWidget {
-  const ChannelProfilePage({super.key});
+  final String name;
+  final String imageUrl;
+  const ChannelProfilePage({super.key, required this.name, required this.imageUrl});
 
   @override
   State<ChannelProfilePage> createState() => _ChannelProfilePageState();
@@ -49,7 +51,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
               snap: true,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.go('/'),
+                onPressed: () => context.pop(),
               ),
               actions: [
                 IconButton(icon: const Icon(Icons.cast), onPressed: () {}),
@@ -61,7 +63,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: CachedNetworkImage(
-                  imageUrl: 'https://pbs.twimg.com/media/GQGj-kCWkAAuS9_.jpg:large',
+                  imageUrl: widget.imageUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
@@ -93,7 +95,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
                           backgroundColor: Colors.white,
                           child: ClipOval(
                             child: CachedNetworkImage(
-                              imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Callofdutyblackops4.png/220px-Callofdutyblackops4.png',
+                              imageUrl: widget.imageUrl,
                               placeholder: (context, url) => Shimmer.fromColors(
                                 baseColor: Colors.grey[300]!,
                                 highlightColor: Colors.grey[100]!,
@@ -116,7 +118,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
                               Row(
                                 children: [
                                   Text(
-                                    "Call of Duty",
+                                    widget.name,
                                     style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(width: 4),
@@ -125,7 +127,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "@CallofDuty • 8.12M subscribers • 2.4K videos",
+                                "@${widget.name.replaceAll(' ', '')} • 8.12M subscribers • 2.4K videos",
                                 style: theme.textTheme.bodySmall,
                               ),
                             ],
@@ -138,7 +140,7 @@ class _ChannelProfilePageState extends State<ChannelProfilePage> with SingleTick
 
                     // Description
                     Text(
-                      "Welcome to The Official Call of Duty® channel! Subscribe and follow for the latest updates. ...more",
+                      "Welcome to The Official ${widget.name} channel! Subscribe and follow for the latest updates. ...more",
                       style: theme.textTheme.bodyMedium,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

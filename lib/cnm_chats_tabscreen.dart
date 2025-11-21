@@ -1,28 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/chat_messaging_screen.dart';
+import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/one_time_message_screen.dart';
 import 'package:shimmer/shimmer.dart';
-
-class ChatModel {
-  final String name;
-  final String message;
-  final String time;
-  final String imgPath;
-  final bool isOnline;
-  final int? messageCount;
-  bool hasStory;
-
-  ChatModel({
-    required this.name,
-    required this.message,
-    required this.time,
-    required this.imgPath,
-    this.isOnline = false,
-    this.messageCount,
-    this.hasStory = false,
-  });
-}
 
 class CNMChatsTabscreen extends StatefulWidget {
   const CNMChatsTabscreen({super.key});
@@ -40,7 +21,7 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
     super.initState();
     chatItems = [
       ChatModel(
-        name: "John Doe",
+        name: "User 1",
         message: "Hello there!",
         time: "12:30 PM",
         imgPath: "https://picsum.photos/seed/p1/200/200",
@@ -49,14 +30,14 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
         hasStory: true,
       ),
       ChatModel(
-        name: "Jane Doe",
+        name: "User 2",
         message: "How are you?",
         time: "12:35 PM",
         imgPath: "https://picsum.photos/seed/p2/200/200",
         hasStory: true,
       ),
       ChatModel(
-        name: "Peter Jones",
+        name: "User 3",
         message: "See you soon.",
         time: "12:40 PM",
         imgPath: "https://picsum.photos/seed/p3/200/200",
@@ -106,7 +87,8 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final chat = chatItems[index];
-                      return ChatListItem(chat: chat, onTap: () => _viewStory(index));
+                      return ChatListItem(
+                          chat: chat, onTap: () => _viewStory(index));
                     },
                     childCount: chatItems.length,
                   ),
@@ -197,6 +179,11 @@ class ChatListItem extends StatelessWidget {
               time: chat.time,
               status: chat.isOnline ? "Online" : "Offline",
               message: chat.message,
+              onMessageSent: (newMessage) {
+                // Update the chat model with the new message and time
+                chat.message = newMessage;
+                chat.time = "Now"; // Or use a proper time formatting logic
+              },
             ),
           ),
         );
