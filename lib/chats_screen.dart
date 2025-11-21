@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/cnm_add_tabscreen.dart';
 import 'package:my_app/cnm_calls_tabscreen.dart';
 import 'package:my_app/cnm_chats_tabscreen.dart';
 import 'package:my_app/model/chat_model.dart';
-import 'package:my_app/select_contact_screen.dart';
 import 'package:my_app/cnm_notifications_tabscreen.dart';
 import 'package:my_app/cnm_updates_tabscreen.dart';
 import 'package:my_app/cnm_reply_tabscreen.dart';
@@ -100,12 +100,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SelectContactScreen(
-                        onNewChat: _addOrUpdateChat,
-                      )),
+                builder: (context) => const CNMAddTabscreen(),
+              ),
             );
           },
-          child: const Icon(Icons.message),
+          child: const Icon(Icons.person_add),
         ),
       ),
     );

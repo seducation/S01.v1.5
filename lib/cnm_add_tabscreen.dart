@@ -5,8 +5,13 @@ class CNMAddTabscreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Add'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Friends'),
+      ),
+      body: const Center(
+        child: Text('Add Friends Screen'),
+      ),
     );
   }
 }
