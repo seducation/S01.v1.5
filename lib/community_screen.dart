@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:myapp/widgets/hero_banner.dart';
-import 'package:myapp/widgets/poster_rail_section_community_screen.dart';
-import 'package:myapp/widgets/status_rail_section.dart';
+import 'package:my_app/widgets/hero_banner.dart';
+import 'package:my_app/widgets/poster_rail_section_community_screen.dart';
+import 'package:my_app/widgets/status_rail_section.dart';
 import 'appwrite_service.dart';
 import 'poster_item.dart';
 

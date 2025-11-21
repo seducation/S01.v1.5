@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/search_result_tile.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -10,81 +10,44 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<SearchItem> _searchResults = [];
-  bool _isLoading = false;
 
-  final List<SearchItem> _historyItems = [
-    SearchItem(text: "chatgpt"),
-    SearchItem(text: "figma"),
-    SearchItem(text: "idx google"),
-    SearchItem(text: "apple tv mobile ui", subtitle: "Images"),
-    SearchItem(text: "github"),
-    SearchItem(text: "hotstar"),
-    SearchItem(text: "zee5"),
-    SearchItem(text: "hotstar like ui", subtitle: "Images"),
-    SearchItem(text: "apple tv"),
-    SearchItem(text: "telegram"),
-    SearchItem(text: "Google"),
-    SearchItem(text: "wbuhs"),
+  final List<String> _historyItems = [
+    "chatgpt",
+    "figma",
+    "idx google",
+    "apple tv mobile ui",
+    "github",
+    "hotstar",
+    "zee5",
+    "hotstar like ui",
+    "apple tv",
+    "telegram",
+    "Google",
+    "wbuhs",
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_onSearchChanged);
-  }
-
-  void _onSearchChanged() {
-    if (_searchController.text.isNotEmpty) {
-      _performSearch(_searchController.text);
-    } else {
-      setState(() {
-        _searchResults = [];
-      });
-    }
-  }
-
-  Future<void> _performSearch(String query) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate a network request
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      // Mock search results
-      _searchResults = List.generate(
-        10,
-        (index) => SearchItem(
-          text: '$query result $index',
-          subtitle: 'This is a mock description for result $index',
-        ),
-      );
-      _isLoading = false;
-    });
-  }
-
-  @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _submitSearch(String query) {
+    if (query.isNotEmpty) {
+      context.go('/search/$query');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1F1F1F),
       body: SafeArea(
         child: Column(
           children: [
             _buildSearchBar(),
             const Divider(height: 1, color: Colors.white10),
             Expanded(
-              child: _searchController.text.isEmpty
-                  ? _buildHistoryList()
-                  : _buildSearchResults(),
+              child: _buildHistoryList(),
             ),
           ],
         ),
@@ -95,19 +58,18 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      color: const Color(0xFF1F1F1F),
       child: Row(
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.grey),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.go('/'),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: _searchController,
               autofocus: true,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
+              style: const TextStyle(fontSize: 18),
               decoration: const InputDecoration(
                 hintText: "Search...",
                 hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
@@ -115,6 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 contentPadding: EdgeInsets.zero,
                 isDense: true,
               ),
+              onSubmitted: _submitSearch,
             ),
           ),
           _buildGradientIcon(Icons.mic, [
@@ -145,34 +108,11 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (_searchResults.isEmpty) {
-      return const Center(
-          child: Text('No results found.',
-              style: TextStyle(color: Colors.white)));
-    } else {
-      return ListView.builder(
-        itemCount: _searchResults.length,
-        itemBuilder: (context, index) {
-          final item = _searchResults[index];
-          return ListTile(
-            title: Text(item.text, style: const TextStyle(color: Colors.white)),
-            subtitle: item.subtitle != null
-                ? Text(item.subtitle!,
-                    style: const TextStyle(color: Colors.grey))
-                : null,
-          );
-        },
-      );
-    }
-  }
-
-  Widget _buildHistoryItem(SearchItem item) {
+  Widget _buildHistoryItem(String item) {
     return InkWell(
       onTap: () {
-        _searchController.text = item.text;
+        _searchController.text = item;
+        _submitSearch(item);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
@@ -187,28 +127,12 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(width: 24),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.text,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFFE3E3E3),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  if (item.subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      item.subtitle!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ]
-                ],
+              child: Text(
+                item,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             const SizedBox(width: 40),

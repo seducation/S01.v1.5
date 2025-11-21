@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'HMV_features_tabscreen.dart';
-import 'HMV_following_tabscreen.dart';
-import 'HMV_news_tabscreen.dart';
-import 'HMV_shorts_tabscreen.dart';
-import 'HMV_videos_tabscreen.dart';
+import 'hmv_features_tabscreen.dart';
+import 'hmv_following_tabscreen.dart';
+import 'hmv_news_tabscreen.dart';
+import 'hmv_shorts_tabscreen.dart';
+import 'hmv_videos_tabscreen.dart';
 import 'chats_screen.dart';
 import 'tab_manager_screen.dart';
 
@@ -19,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _mainTabController;
   final ScrollController _scrollController = ScrollController();
   late List<GlobalKey> _tabKeys;
-  int _counter = 0;
 
   // Make the list of tabs mutable
   final List<String> _tabs = [
@@ -41,12 +40,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _initializeController();
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
   }
 
   void _initializeController() {
@@ -255,14 +248,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               } else if (name == 'following') {
                 return const HMVFollowingTabscreen();
               } else {
-                return Center(child: Text('$_counter'));
+                return Center(child: Text(name));
               }
             }).toList(),
-          ),
-           floatingActionButton: FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
           ),
         );
       },

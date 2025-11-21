@@ -8,11 +8,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myapp/auth_service.dart';
-import 'package:myapp/theme_model.dart';
+import 'package:my_app/auth_service.dart';
+import 'package:my_app/theme_model.dart';
 import 'package:provider/provider.dart';
 
-import 'package:myapp/main.dart';
+import 'package:my_app/main.dart';
 
 class MockAuthService extends AuthService {
   @override

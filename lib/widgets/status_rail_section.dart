@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/poster_item.dart';
+import 'package:my_app/poster_item.dart';
 import 'package:shimmer/shimmer.dart';
 
 class StatusRailSection extends StatelessWidget {

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/chat_messaging_screen.dart';
+import 'package:my_app/chat_messaging_screen.dart';
+import 'package:my_app/one_time_message_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ChatModel {
@@ -8,16 +9,18 @@ class ChatModel {
   final String message;
   final String time;
   final String imgPath;
-  final bool status;
-  final int? messNum;
+  final bool isOnline;
+  final int? messageCount;
+  bool hasStory;
 
   ChatModel({
     required this.name,
     required this.message,
     required this.time,
     required this.imgPath,
-    this.status = false,
-    this.messNum,
+    this.isOnline = false,
+    this.messageCount,
+    this.hasStory = false,
   });
 }
 
@@ -29,48 +32,37 @@ class CNMChatsTabscreen extends StatefulWidget {
 }
 
 class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
-  late List<ChatModel> items;
-  late List<StoryItem> stories;
+  late List<ChatModel> chatItems;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    items = [
+    chatItems = [
       ChatModel(
         name: "John Doe",
         message: "Hello there!",
         time: "12:30 PM",
         imgPath: "https://picsum.photos/seed/p1/200/200",
-        status: true,
-        messNum: 2,
+        isOnline: true,
+        messageCount: 2,
+        hasStory: true,
       ),
       ChatModel(
         name: "Jane Doe",
         message: "How are you?",
         time: "12:35 PM",
         imgPath: "https://picsum.photos/seed/p2/200/200",
+        hasStory: true,
       ),
       ChatModel(
         name: "Peter Jones",
         message: "See you soon.",
         time: "12:40 PM",
         imgPath: "https://picsum.photos/seed/p3/200/200",
-        status: true,
-        messNum: 1,
+        isOnline: true,
+        messageCount: 1,
       ),
-    ];
-    stories = [
-      StoryItem(name: 'Alex', imageUrl: 'https://picsum.photos/seed/s1/200/200'),
-      StoryItem(name: 'Ben', imageUrl: 'https://picsum.photos/seed/s2/200/200'),
-      StoryItem(
-          name: 'Catherine',
-          imageUrl: 'https://picsum.photos/seed/s3/200/200'),
-      StoryItem(name: 'David', imageUrl: 'https://picsum.photos/seed/s4/200/200'),
-      StoryItem(name: 'Ella', imageUrl: 'https://picsum.photos/seed/s5/200/200'),
-      StoryItem(name: 'Frank', imageUrl: 'https://picsum.photos/seed/s6/200/200'),
-      StoryItem(name: 'Grace', imageUrl: 'https://picsum.photos/seed/s7/200/200'),
-      StoryItem(name: 'Henry', imageUrl: 'https://picsum.photos/seed/s8/200/200'),
     ];
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -81,225 +73,177 @@ class _CNMChatsTabscreenState extends State<CNMChatsTabscreen> {
     });
   }
 
+  void _viewStory(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OneTimeMessageScreen(
+          message: "This is a one-time message from ${chatItems[index].name}",
+          onStoryViewed: () {
+            if (mounted) {
+              setState(() {
+                chatItems[index].hasStory = false;
+              });
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        const SizedBox(height: 10),
-        StatusBar(
-          isLoading: isLoading,
-          stories: stories,
-        ),
-        ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (ctx, i) {
-              return ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatMessagingScreen(
-                        urlImage: items[i].imgPath,
-                        title: items[i].name,
-                        onOff: items[i].status ? "Online" : "Offline",
-                      ),
-                    ),
-                  );
-                },
-                leading: CircleAvatar(
-                  radius: 28,
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: items[i].imgPath,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          color: Colors.white,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
-                      fit: BoxFit.cover,
-                      width: 56,
-                      height: 56,
-                    ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: isLoading
+          ? _buildShimmerLoading()
+          : CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: StatusBar(chatItems: chatItems, onViewStory: _viewStory),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final chat = chatItems[index];
+                      return ChatListItem(chat: chat, onTap: () => _viewStory(index));
+                    },
+                    childCount: chatItems.length,
                   ),
                 ),
-                title: items[i].status
-                    ? Text(
-                        items[i].name,
-                        style:
-                            const TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    : Row(
-                        children: [
-                          Text(
-                            items[i].name,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Icon(
-                            Icons.volume_mute,
-                            size: 18,
-                            color: Colors.grey[400],
-                          )
-                        ],
-                      ),
-                subtitle: Text(
-                  items[i].message,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                trailing: items[i].messNum != null
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(items[i].time),
-                          const SizedBox(
-                            height: 7,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                                color: items[i].status
-                                    ? Colors.green
-                                    : Colors.grey[400],
-                                borderRadius:
-                                    BorderRadius.circular(30)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                '${items[i].messNum}',
-                                style: const TextStyle(
-                                    color: Colors.white),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(items[i].time),
-                          const SizedBox(
-                            height: 7,
-                          ),
-                        ],
-                      ),
-              );
-            },
-            separatorBuilder: (ctx, i) {
-              return const Divider();
-            },
-            itemCount: items.length),
-      ],
+              ],
+            ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: ListView.builder(
+        itemCount: 8,
+        itemBuilder: (context, index) => const ShimmerChatListItem(),
+      ),
     );
   }
 }
 
 class StatusBar extends StatelessWidget {
-  final bool isLoading;
-  final List<StoryItem> stories;
+  final List<ChatModel> chatItems;
+  final Function(int) onViewStory;
 
-  const StatusBar({
-    super.key,
-    required this.isLoading,
-    required this.stories,
-  });
+  const StatusBar({super.key, required this.chatItems, required this.onViewStory});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 110,
+      height: 120,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: isLoading ? 8 : stories.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        itemCount: chatItems.length,
         itemBuilder: (context, index) {
-          if (isLoading) return _ShimmerStory();
-          return _StoryBubble(item: stories[index]);
+          final chat = chatItems[index];
+          return GestureDetector(
+            onTap: () => onViewStory(index),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: chat.hasStory ? Colors.pinkAccent : Colors.transparent,
+                        width: 3,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundImage: CachedNetworkImageProvider(chat.imgPath),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    chat.name,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );
   }
 }
 
-class StoryItem {
-  final String name;
-  final String imageUrl;
+class ChatListItem extends StatelessWidget {
+  final ChatModel chat;
+  final VoidCallback onTap;
 
-  StoryItem({
-    required this.name,
-    required this.imageUrl,
-  });
-}
-
-class _StoryBubble extends StatelessWidget {
-  final StoryItem item;
-
-  const _StoryBubble({required this.item});
+  const ChatListItem({super.key, required this.chat, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 72,
-      margin: const EdgeInsets.only(right: 14),
-      child: Column(
+    return ListTile(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatMessagingScreen(
+              imgPath: chat.imgPath,
+              name: chat.name,
+              time: chat.time,
+              status: chat.isOnline ? "Online" : "Offline",
+              message: chat.message,
+            ),
+          ),
+        );
+      },
+      leading: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: CircleAvatar(
+          radius: 30,
+          backgroundImage: CachedNetworkImageProvider(chat.imgPath),
+        ),
+      ),
+      title: Text(chat.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      subtitle: Text(chat.message, style: const TextStyle(color: Colors.grey)),
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(2.4),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  Colors.purple,
-                  Colors.orange,
-                ],
+          Text(chat.time, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 5),
+          if (chat.messageCount != null && chat.messageCount! > 0)
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: Colors.pinkAccent,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                chat.messageCount.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
-            child: CircleAvatar(
-              radius: 28,
-              backgroundImage: NetworkImage(item.imageUrl),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            item.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-            ),
-          ),
         ],
       ),
     );
   }
 }
 
-class _ShimmerStory extends StatelessWidget {
+class ShimmerChatListItem extends StatelessWidget {
+  const ShimmerChatListItem({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade900,
-      highlightColor: Colors.grey.shade700,
-      child: Container(
-        width: 72,
-        margin: const EdgeInsets.only(right: 14),
-        child: const Column(
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.black,
-            ),
-            SizedBox(height: 10),
-            Text('data')
-          ],
-        ),
-      ),
+    return const ListTile(
+      leading: CircleAvatar(radius: 30, backgroundColor: Colors.white),
+      title: SizedBox(height: 20, width: 150, child: ColoredBox(color: Colors.white)),
+      subtitle: SizedBox(height: 15, width: 100, child: ColoredBox(color: Colors.white)),
     );
   }
 }

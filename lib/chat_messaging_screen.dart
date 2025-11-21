@@ -1,26 +1,30 @@
 
 import 'package:flutter/material.dart';
-import 'package:myapp/widgets/chat_app_bar.dart';
+import 'package:my_app/widgets/chat_app_bar.dart';
 
 class ChatMessagingScreen extends StatelessWidget {
-  final String urlImage;
-  final String title;
-  final String onOff;
+  final String imgPath;
+  final String name;
+  final String time;
+  final String status;
+  final String message;
 
   const ChatMessagingScreen({
     super.key,
-    required this.urlImage,
-    required this.title,
-    required this.onOff,
+    required this.imgPath,
+    required this.name,
+    required this.time,
+    required this.status,
+    required this.message,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChatAppBar(
-        urlImage: urlImage,
-        title: title,
-        onOff: onOff,
+        urlImage: imgPath,
+        title: name,
+        onOff: status,
       ),
       body: const ChatScr(),
     );

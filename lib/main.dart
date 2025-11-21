@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/results_searches.dart';
 import 'package:provider/provider.dart';
 
 import 'add_post_screen.dart';
@@ -19,7 +20,7 @@ import 'setting_active_status_screen.dart';
 import 'setting_app_permission_screen.dart';
 import 'setting_delete_screen.dart';
 import 'setting_emergency_screen.dart';
-import 'setting_font_screen.dart';
+import 'setting_theme_screen.dart';
 import 'setting_location_screen.dart';
 import 'setting_privacy_screen.dart';
 import 'setting_safety_screen.dart';
@@ -116,6 +117,14 @@ GoRouter _createRouter(AuthService authService) {
       GoRoute(
         path: '/search',
         builder: (context, state) => const SearchScreen(),
+        routes: [
+          GoRoute(
+            path: ':query',
+            builder: (context, state) => ResultsSearches(
+              query: state.pathParameters['query']!,
+            ),
+          ),
+        ],
       ),
        GoRoute(
         path: '/setting_active_status',
@@ -134,8 +143,8 @@ GoRouter _createRouter(AuthService authService) {
         builder: (context, state) => const SettingEmergencyScreen(),
       ),
       GoRoute(
-        path: '/setting_font',
-        builder: (context, state) => const SettingFontScreen(),
+        path: '/setting_theme',
+        builder: (context, state) => const SettingThemeScreen(),
       ),
       GoRoute(
         path: '/setting_location',

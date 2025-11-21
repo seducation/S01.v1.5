@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class SettingFontScreen extends StatelessWidget {
-  const SettingFontScreen({super.key});
+class SettingThemeScreen extends StatelessWidget {
+  const SettingThemeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Font'),
+        title: const Text('Theme'),
       ),
       body: const Center(
         child: Text(
-          'Font',
+          'Theme',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
