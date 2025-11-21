@@ -25,6 +25,7 @@ import 'setting_location_screen.dart';
 import 'setting_privacy_screen.dart';
 import 'setting_safety_screen.dart';
 import 'setting_support_screen.dart';
+import 'about_searches.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -179,7 +180,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ChatsScreen(),
-    const SearchScreen(),
+    const AboutSearches(),
     const CommunityScreen(),
     const LensScreen(),
   ];

@@ -10,7 +10,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   algoliasearch: any
   appwrite: ^20.3.1
-  cached_network_image: ^3.3.1
+  cached_network_image: ^3.4.1
   flutter:
     sdk: flutter
   flutter_staggered_grid_view: any

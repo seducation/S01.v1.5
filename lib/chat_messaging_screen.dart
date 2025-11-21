@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:my_app/chat_call_screen.dart';
 import 'package:my_app/widgets/chat_app_bar.dart';
 
 class ChatMessagingScreen extends StatelessWidget {
@@ -25,6 +25,12 @@ class ChatMessagingScreen extends StatelessWidget {
         urlImage: imgPath,
         title: name,
         onOff: status,
+        onCallPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Panggilan()),
+          );
+        },
       ),
       body: const ChatScr(),
     );

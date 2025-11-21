@@ -58,42 +58,33 @@ class SettingsScreen extends StatelessWidget {
                                     children: [
                                       ListTile(
                                         title: const Text('Light'),
-                                        leading: Radio<ThemeMode>(
-                                          value: ThemeMode.light,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (ThemeMode? value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
+                                        onTap: () {
+                                          themeModel.themeMode = ThemeMode.light;
+                                          Navigator.of(context).pop();
+                                        },
+                                        trailing: themeModel.themeMode == ThemeMode.light
+                                            ? const Icon(Icons.check)
+                                            : null,
                                       ),
                                       ListTile(
                                         title: const Text('Dark'),
-                                        leading: Radio<ThemeMode>(
-                                          value: ThemeMode.dark,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (ThemeMode? value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
+                                        onTap: () {
+                                          themeModel.themeMode = ThemeMode.dark;
+                                          Navigator.of(context).pop();
+                                        },
+                                        trailing: themeModel.themeMode == ThemeMode.dark
+                                            ? const Icon(Icons.check)
+                                            : null,
                                       ),
                                       ListTile(
                                         title: const Text('System'),
-                                        leading: Radio<ThemeMode>(
-                                          value: ThemeMode.system,
-                                          groupValue: themeModel.themeMode,
-                                          onChanged: (ThemeMode? value) {
-                                            if (value != null) {
-                                              themeModel.themeMode = value;
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
+                                        onTap: () {
+                                          themeModel.themeMode = ThemeMode.system;
+                                          Navigator.of(context).pop();
+                                        },
+                                        trailing: themeModel.themeMode == ThemeMode.system
+                                            ? const Icon(Icons.check)
+                                            : null,
                                       ),
                                     ],
                                   );

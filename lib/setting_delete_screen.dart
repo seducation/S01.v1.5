@@ -14,22 +14,56 @@ class SettingDeleteScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(), // Standard back navigation
         ),
       ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF5265C), // Use the pink color from the example
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          ),
-          onPressed: () {
-            // Shows the custom delete confirmation dialog.
-            showDialog(
-              context: context,
-              builder: (context) => const DeleteAccountDialog(),
-            );
-          },
-          child: const Text("Delete My Account"),
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Container(
+            width: 500, // Max width for tablet/desktop
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // --- Scrollable Form Content ---
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Delete Your Account",
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "This is a permanent action and cannot be undone. When you delete your account, all of your data, including your profile, posts, comments, and messages, will be permanently removed.",
+                          style: TextStyle(color: Colors.black54, fontSize: 14, height: 1.4),
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF5265C), // Use the pink color from the example
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                            ),
+                            onPressed: () {
+                              // Shows the custom delete confirmation dialog.
+                              showDialog(
+                                context: context,
+                                builder: (context) => const DeleteAccountDialog(),
+                              );
+                            },
+                            child: const Text("Delete My Account"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

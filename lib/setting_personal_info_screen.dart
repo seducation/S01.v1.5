@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // The main screen widget that contains the form.
 class SettingPersonalInfoScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _SettingPersonalInfoScreenState extends State<SettingPersonalInfoScreen> {
           title: const Text("Personal Info"),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
         ),
         body: LayoutBuilder(

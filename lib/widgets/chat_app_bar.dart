@@ -1,19 +1,20 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/profile_screen.dart';
+import 'package:my_app/profile_page_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String urlImage;
   final String title;
   final String onOff;
+  final VoidCallback? onCallPressed;
 
   const ChatAppBar({
     super.key,
     required this.urlImage,
     required this.title,
     required this.onOff,
+    this.onCallPressed,
   });
 
   @override
@@ -29,7 +30,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            MaterialPageRoute(builder: (context) => const ChannelProfilePage()),
           );
         },
         child: Row(
@@ -72,10 +73,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: onCallPressed,
           icon: const Icon(Icons.call),
         ),
         PopupMenuButton(
+          icon: const Icon(Icons.more_vert),
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'view_contact',

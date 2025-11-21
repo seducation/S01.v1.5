@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_app/select_contact_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'chat_messaging_screen.dart';
@@ -126,8 +128,16 @@ class _ChatsScreenState extends State<ChatsScreen> {
           actions: <Widget>[
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.search),
-            )
+              child: Icon(Icons.comment),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.person_add),
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () => context.go('/search'),
+            ),
           ],
           bottom: const TabBar(
             tabs: [
@@ -261,7 +271,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
         ),
         floatingActionButton: FloatingActionButton(
             backgroundColor: const Color(0xFF65a9e0),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const SelectContactScreen(),
+              ));
+            },
             child: const Icon(Icons.create, color: Colors.white)),
       ),
     );

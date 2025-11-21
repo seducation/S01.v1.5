@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HeroBanner extends StatefulWidget {
@@ -74,9 +76,20 @@ class _HeroBannerItem extends StatelessWidget {
       children: [
         // Background Image
         Positioned.fill(
-          child: Image.network(
-            item.imageUrl,
+          child: CachedNetworkImage(
+            imageUrl: item.imageUrl,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Shimmer.fromColors(
+              baseColor: Colors.grey[800]!,
+              highlightColor: Colors.grey[700]!,
+              child: Container(
+                color: Colors.black,
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey[800],
+              child: const Icon(Icons.error, color: Colors.white),
+            ),
           ),
         ),
 

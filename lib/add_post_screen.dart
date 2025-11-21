@@ -96,7 +96,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         'caption': _descriptionController.text,
         'tags': _tagsController.text.split(',').map((s) => s.trim()).toList(),
         'location': '', // Placeholder
-        'code_snippet': {
+        'snippet': {
           'language': _codeLang,
           'content': _codeController.text,
         },
@@ -176,6 +176,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
           onPressed: () => context.go('/'),
         ),
         actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.help_outline),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ElevatedButton(
@@ -294,7 +298,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       children: [
         Row(
           children: [
-            const Text('Code Snippet',
+            const Text('Snippet',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const Spacer(),
             DropdownButton<String>(
