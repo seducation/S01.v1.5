@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import 'appwrite_service.dart';
 import 'auth_service.dart';
+import 'helphowtocreatepost.dart';
 
 // Mimics the functionality of the provided React PostEditor component.
 class AddPostScreen extends StatefulWidget {
@@ -177,7 +178,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const HelpHowToCreatePost(),
+                ),
+              );
+            },
             icon: const Icon(Icons.help_outline),
           ),
           Padding(

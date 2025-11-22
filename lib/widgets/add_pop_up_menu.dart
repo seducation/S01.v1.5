@@ -99,7 +99,7 @@ class _CreateRowDialogState extends State<CreateRowDialog> {
                     // Row ID Dropdown
                     DropdownWidget(
                       label: "Category",
-                      items: ["profile", "channel", "group", "hashtags"],
+                      items: ["private", "public", "only selected contact"],
                       icon: Icons.edit,
                     ),
                     SizedBox(height: 24),
