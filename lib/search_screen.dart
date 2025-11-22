@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_app/profile_page_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -64,17 +63,9 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.menu, color: theme.colorScheme.onSurface.withAlpha(153)),
+            icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface.withAlpha(153)),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChannelProfilePage(
-                    name: "User 1",
-                    imageUrl: "https://picsum.photos/seed/p1/200/200",
-                  ),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
           const SizedBox(width: 8),
