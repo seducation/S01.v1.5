@@ -3,7 +3,7 @@ import 'package:my_app/chat_call_screen.dart';
 import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/widgets/chat_app_bar.dart';
 
-class ChatMessagingScreen extends StatelessWidget {
+class ChatMessagingScreen extends StatefulWidget {
   final ChatModel chat;
   final Function(String) onMessageSent;
 
@@ -11,12 +11,17 @@ class ChatMessagingScreen extends StatelessWidget {
       {super.key, required this.chat, required this.onMessageSent});
 
   @override
+  State<ChatMessagingScreen> createState() => _ChatMessagingScreenState();
+}
+
+class _ChatMessagingScreenState extends State<ChatMessagingScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChatAppBar(
-        urlImage: chat.imgPath,
-        title: chat.name,
-        onOff: chat.isOnline ? "Online" : "Offline",
+        urlImage: widget.chat.imgPath,
+        title: widget.chat.name,
+        onOff: widget.chat.isOnline ? "Online" : "Offline",
         onCallPressed: () {
           Navigator.push(
             context,
@@ -24,7 +29,8 @@ class ChatMessagingScreen extends StatelessWidget {
           );
         },
       ),
-      body: ChatScr(onMessageSent: onMessageSent, message: chat.message),
+      body: ChatScr(
+          onMessageSent: widget.onMessageSent, message: widget.chat.message),
     );
   }
 }
@@ -58,7 +64,6 @@ class _ChatScrState extends State<ChatScr> with TickerProviderStateMixin {
     });
     widget.onMessageSent(text);
     _focusNode.requestFocus();
-    Navigator.pop(context); // Go back to the previous screen
   }
 
   Widget _buildTextComposer() {
