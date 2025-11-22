@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/cnm_add_tabscreen.dart';
 import 'package:my_app/cnm_calls_tabscreen.dart';
 import 'package:my_app/cnm_chats_tabscreen.dart';
 import 'package:my_app/cnm_meeting_tabscreen.dart';
 import 'package:my_app/model/chat_model.dart';
 import 'package:my_app/cnm_notifications_tabscreen.dart';
 import 'package:my_app/cnm_updates_tabscreen.dart';
-import 'package:my_app/contact_pop_up_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -86,9 +86,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => const FindContactDialog(),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CNMAddTabscreen(),
+              ),
             );
           },
           child: const Icon(Icons.person_add),
